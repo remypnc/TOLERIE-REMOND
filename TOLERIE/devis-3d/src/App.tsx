@@ -19,7 +19,8 @@ import { FilletPanel } from './components/FilletPanel';
 import { InsertPanel } from './components/InsertPanel';
 import { FacePanel, ProductPanel } from './components/SelectPanel';
 import { Viewer3D, type Measure, type LabelKey, type PartEdit, type PickEvent, type Section, type Tag, type ViewerHandle, type ViewName } from './components/Viewer3D';
-import { ChatDock, Bubble, Choices, Composer, Typing, type ComposerContext, type Step } from './components/Chat';
+import { ChatDock, Bubble, Choices, Composer, Typing, filesToAttachments, type ComposerContext, type Step } from './components/Chat';
+import { droppedFiles, hasFiles } from './lib/dropFiles';
 import { FlatPanel } from './components/FlatPanel';
 import { QuoteCard, type QuoteCardHandle } from './components/QuoteCard';
 import { ContactModal } from './components/ContactModal';
@@ -205,6 +206,8 @@ export default function App() {
     const user = msg('user', display ?? text, { ...(attachments.length ? { attachments } : {}), snapshot: { spec: specRef.current, answered: ctxRef.current.answered } });
     // Le texte proposé (message à corriger, zone touchée) a servi : il ne doit pas réapparaître dans une autre saisie.
     setPrefill(undefined);
+    // Idem pour les fichiers déposés sur la page : envoyés avec ce message, ils ne doivent pas revenir dans une autre saisie.
+    setDropped(undefined);
     setStarted(true);
     setMessages((m) => [...m, user]);
     setTyping(true);
@@ -263,6 +266,46 @@ export default function App() {
     applyTurn(turn, answeredBy(ctx, text, turn));
   }
   const onChoice = (c: Choice) => ask(c.value, [], c.label);
+
+  // --- Glisser-déposer partout dans la page (dès l'accueil) : fichiers et dossiers rejoignent la saisie ---------
+  const [dropping, setDropping] = useState(false);
+  const [dropped, setDropped] = useState<{ atts: Attachment[]; nonce: number }>();
+  useEffect(() => {
+    let depth = 0;
+    const enter = (e: DragEvent) => {
+      if (!hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      depth++;
+      setDropping(true);
+    };
+    const over = (e: DragEvent) => hasFiles(e.dataTransfer) && e.preventDefault();
+    const leave = () => {
+      depth = Math.max(0, depth - 1);
+      if (!depth) setDropping(false);
+    };
+    const drop = (e: DragEvent) => {
+      if (!hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      depth = 0;
+      setDropping(false);
+      void droppedFiles(e.dataTransfer!).then((files) => {
+        if (!files.length) return;
+        setDropped({ atts: filesToAttachments(files), nonce: Date.now() });
+        if (stage !== 'config' && stage !== 'preview') return;
+        setDockOpen(true);
+      });
+    };
+    window.addEventListener('dragenter', enter);
+    window.addEventListener('dragover', over);
+    window.addEventListener('dragleave', leave);
+    window.addEventListener('drop', drop);
+    return () => {
+      window.removeEventListener('dragenter', enter);
+      window.removeEventListener('dragover', over);
+      window.removeEventListener('dragleave', leave);
+      window.removeEventListener('drop', drop);
+    };
+  }, [stage]);
   /**
    * Modifier un message déjà envoyé : la conversation repart de juste avant lui, la pièce et les réponses
    * reviennent à cet état (annulable), et son texte revient dans la saisie pour être corrigé puis renvoyé.
@@ -1062,7 +1105,7 @@ export default function App() {
             <Choices m={messages[0]} onChoice={onChoice} />
           </div>
           <div className={styles.pbComposer}>
-            <Composer big onSend={(t, a) => ask(t, a)} prefill={prefill} placeholder="Décrivez votre pièce : forme, cotes, matière… ou parlez au micro" />
+            <Composer big onSend={(t, a) => ask(t, a)} prefill={prefill} incoming={dropped} placeholder="Décrivez votre pièce : forme, cotes, matière… ou parlez au micro" />
           </div>
         </div>
       )}
@@ -1081,6 +1124,7 @@ export default function App() {
           steps={steps}
           onStep={onStep}
           context={composerContext}
+          incomingFromPage={dropped}
           onPreview={goPreview}
         />
       )}
@@ -1178,7 +1222,7 @@ export default function App() {
               <Icon name="back" size={18} /> <span>Continuer à modifier</span>
             </button>
             <div className={styles.pbComposer}>
-              <Composer big onSend={(t, a) => ask(t, a)} prefill={prefill} context={composerContext} placeholder="Une modification ? ex. « aile à 50 », « inox »" />
+              <Composer big onSend={(t, a) => ask(t, a)} prefill={prefill} context={composerContext} incoming={dropped} placeholder="Une modification ? ex. « aile à 50 », « inox »" />
             </div>
             <button type="button" className={`${styles.primaryBtn} ${styles.pbOk}`} onClick={goQuote}>
               <span>Confirmer et voir le devis</span> <Icon name="check" size={18} />
@@ -1255,6 +1299,15 @@ export default function App() {
               <button type="button" className={styles.ghostBtn} onClick={followPiece}>Suivre ma pièce</button>
               <a className={styles.primaryBtn} href="https://www.tolerie-remond.com/">Retour à l’accueil</a>
             </div>
+          </div>
+        </div>
+      )}
+      {dropping && (stage === 'config' || stage === 'preview') && (
+        <div className={styles.dropOverlay} aria-hidden>
+          <div>
+            <Icon name="image" size={34} />
+            <b>Déposez vos fichiers ici</b>
+            <span>Photos, croquis, plans PDF, DXF, STEP… ou un dossier entier</span>
           </div>
         </div>
       )}

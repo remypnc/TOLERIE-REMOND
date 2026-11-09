@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import type { Attachment, ChatMessage, Choice, MissingField, PartSpec } from '../lib/types';
 import { attachmentFiles } from '../lib/cadImport';
+import { droppedFiles } from '../lib/dropFiles';
 import { specRecap } from '../lib/recap';
 import { ASSISTANT_NAME } from '../lib/assistant';
 import { Icon } from './Icons';
@@ -295,9 +296,11 @@ interface DockProps extends ChatProps {
   onStep: (field: MissingField) => void;
   onPreview: () => void;
   context?: ComposerContext | null;
+  /** Fichiers déposés sur la page (hors de la fenêtre). */
+  incomingFromPage?: { atts: Attachment[]; nonce: number };
 }
 
-export function ChatDock({ messages, typing, workLabel, onEditMessage, onSend, onChoice, prefill, expanded, onExpandedChange, steps, onStep, onPreview, context }: DockProps) {
+export function ChatDock({ messages, typing, workLabel, onEditMessage, onSend, onChoice, prefill, expanded, onExpandedChange, steps, onStep, onPreview, context, incomingFromPage }: DockProps) {
   const [incoming, setIncoming] = useState<{ atts: Attachment[]; nonce: number }>();
   const dropInput = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -310,10 +313,16 @@ export function ChatDock({ messages, typing, workLabel, onEditMessage, onSend, o
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, [messages, typing, expanded]);
 
+  // Fichiers déposés ailleurs dans la page (gérés par App) : ils rejoignent la saisie de la fenêtre.
+  useEffect(() => {
+    if (incomingFromPage) setIncoming(incomingFromPage); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [incomingFromPage]);
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setDrag(false);
-    if (e.dataTransfer.files.length) setIncoming({ atts: filesToAttachments(e.dataTransfer.files), nonce: Date.now() });
+    const dt = e.dataTransfer;
+    void droppedFiles(dt).then((files) => files.length && setIncoming({ atts: filesToAttachments(files), nonce: Date.now() }));
   };
 
   return (

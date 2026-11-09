@@ -3,6 +3,15 @@
 Rémy et les agents Claude travaillent **en parallèle**, chacun sur sa branche. `main` est la version en
 ligne : Vercel la redéploie à chaque merge. Personne ne pousse directement sur `main`.
 
+## Une fois par copie du dépôt
+
+```bash
+git config core.hooksPath .githooks   # garde-fou : refuse les push directs sur main
+```
+
+(La protection de `main` côté GitHub demande l'offre GitHub Pro pour un dépôt privé : en attendant, ce
+garde-fou local et la règle de `CLAUDE.md` font foi. Rémy seul peut passer outre : `ALLOW_MAIN_PUSH=1`.)
+
 ## Le cycle
 
 ```bash

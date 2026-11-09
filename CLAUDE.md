@@ -2,6 +2,10 @@
 
 Ce fichier est lu automatiquement par Claude Code. Lis-le en entier avant toute modification, puis
 `TOLERIE/devis-3d/README.md` (contexte complet du devis 3D) et `CONTRIBUTING.md` (branches et pull requests).
+**Agent chargé de l'IA et des données** : ta mission est dans `TOLERIE/devis-3d/docs/MISSION-AGENT-IA.md`.
+
+Qui fait quoi : Rémy décide et fusionne ; l'agent 3D (devis, 3D, prix, refonte du site) relit et fusionne
+les PR ; l'agent IA fournit les données métier et connecte Claude aux fichiers des clients.
 
 ## Le projet en bref
 

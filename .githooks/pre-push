@@ -1,0 +1,11 @@
+#!/bin/sh
+# Garde-fou local : pas de push direct sur main (passer par une branche et une pull request).
+# Activer une fois par copie du dépôt : git config core.hooksPath .githooks
+# Exception volontaire (Rémy seulement) : ALLOW_MAIN_PUSH=1 git push
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ] && [ "$ALLOW_MAIN_PUSH" != "1" ]; then
+    echo "Refusé : pas de push direct sur main. Créez une branche et ouvrez une pull request (voir CONTRIBUTING.md)." >&2
+    exit 1
+  fi
+done
+exit 0

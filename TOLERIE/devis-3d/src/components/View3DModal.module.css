@@ -1,0 +1,35 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(8, 18, 40, 0.68);
+  backdrop-filter: blur(5px);
+  animation: fade 0.3s ease both;
+}
+@keyframes fade { from { opacity: 0; } }
+.card {
+  display: flex;
+  flex-direction: column;
+  width: min(1100px, 100%);
+  height: min(760px, calc(100svh - 32px));
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f4f7fb, #dde5ef);
+  box-shadow: var(--shadow-float);
+  animation: grow 0.5s var(--ease-out) both;
+}
+@keyframes grow { from { opacity: 0; transform: scale(0.92) translateY(20px); } }
+.bar { flex: none; display: flex; align-items: center; gap: 6px; padding: 12px 12px 12px 20px; }
+.title { flex: 1; font: 700 17px var(--font-title); color: var(--navy); }
+.btn { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.85); color: var(--navy); cursor: pointer; }
+.btn:hover { background: #fff; }
+.on, .on:hover { background: var(--accent); color: #fff; }
+.close {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; margin-left: 6px; padding: 0 14px;
+  border: 0; border-radius: 999px; background: var(--navy); color: #fff; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.view { flex: 1; min-height: 0; }
+@media (width < 760px) { .title { font-size: 14px; } .bar { flex-wrap: wrap; } }

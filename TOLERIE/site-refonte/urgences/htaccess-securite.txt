@@ -1,0 +1,54 @@
+# =====================================================================
+# Tôlerie Rémond — règles à coller EN HAUT du fichier .htaccess
+# (racine du site sur l'hébergement OVH, AU-DESSUS de « # BEGIN WordPress »).
+# Faire une copie de l'ancien .htaccess avant. En cas d'erreur 500 : remettre la copie.
+# =====================================================================
+
+# 1. Interdire l'affichage du contenu des dossiers
+#    (aujourd'hui /wp-content/uploads/ et /wp-content/uploads/2026/ sont listés publiquement)
+Options -Indexes
+
+# 2. Bloquer XML-RPC (actif aujourd'hui, avec system.multicall : sert aux attaques par force brute)
+#    À ne pas mettre si l'application mobile WordPress ou Jetpack est utilisée.
+<Files xmlrpc.php>
+  Require all denied
+</Files>
+
+# 3. Masquer les fichiers qui révèlent les versions
+<FilesMatch "^(readme\.html|license\.txt|wp-config-sample\.php)$">
+  Require all denied
+</FilesMatch>
+
+# 4. Lien cassé de l'accueil (404) → page Savoir-faire
+Redirect 301 /decoupe-numerique-metal-sur-mesure-dijon-montbard-bourgogne/ https://www.tolerie-remond.com/savoir-faire-tolerie-fine-de-precision-decoupe-laser-poinconnage-pliage-soudure/
+
+# 5. Page auteur sans valeur → Réalisations
+Redirect 301 /author/timothee/ https://www.tolerie-remond.com/category/realisations/
+
+# 6. En-têtes de sécurité (aucun n'est envoyé aujourd'hui)
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# =====================================================================
+# 7. Fichiers déposés via le formulaire devis (WPForms)
+#    Constat : le dossier /wp-content/uploads/wpforms/ est masqué par un index vide,
+#    mais chaque fichier reste téléchargeable par quiconque connaît (ou devine) son URL.
+#    Règle ci-dessous : n'autoriser le téléchargement qu'aux personnes connectées à WordPress.
+#    Limite : test sur la présence du cookie de connexion, pas une vraie authentification.
+#    La vraie correction vient avec le nouveau site (stockage privé + liens signés).
+#    → Fichier séparé : créer /wp-content/uploads/wpforms/.htaccess avec ce contenu :
+#
+#    <IfModule mod_rewrite.c>
+#      RewriteEngine On
+#      RewriteCond %{HTTP_COOKIE} !wordpress_logged_in_ [NC]
+#      RewriteRule ^ - [F]
+#    </IfModule>
+#
+#    Puis vérifier : un fichier joint s'ouvre quand on est connecté à l'admin,
+#    renvoie « 403 Forbidden » dans une fenêtre de navigation privée.
+# =====================================================================

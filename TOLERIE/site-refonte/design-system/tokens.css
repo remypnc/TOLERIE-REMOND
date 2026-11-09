@@ -1,0 +1,75 @@
+/*
+ * Tôlerie Rémond — design tokens (site principal + devis instantané).
+ * Source de vérité unique : le devis 3D (devis-3d/src/styles/tokens.css) reprend les mêmes valeurs.
+ * Règle : aucun composant n'utilise une couleur, une taille ou une ombre en dur, uniquement ces variables.
+ */
+:root {
+  /* --- Couleurs de marque (identiques au site actuel → reconnaissance des clients) --- */
+  --navy: #112d63;          /* titres, header, fonds forts */
+  --blue: #205d91;          /* liens, éléments secondaires */
+  --accent: #00a2a3;        /* focus, icônes, filets, survols — 3.1:1 sur blanc : jamais pour du texte normal */
+  --accent-strong: #007576; /* fond des boutons primaires (texte blanc 5.5:1) et texte turquoise sur blanc / panel (≥ 4.8:1, AA) */
+  --accent-bright: #00dbdc; /* accent sur fond navy uniquement */
+
+  /* --- Neutres --- */
+  --text: #1d2433;
+  --text-soft: #5b6475;     /* 5.9:1 sur blanc */
+  --grey: #b1b4b8;          /* décoratif, jamais pour du texte */
+  --line: #e3e7ee;
+  --page: #ffffff;
+  --panel: #f5f6f8;
+  --panel-strong: #eceff4;
+  --steel: #2a3140;         /* fonds sombres « atelier » (sections preuves, vidéo) */
+
+  /* --- États --- */
+  --ok: #138a5b;
+  --warn: #b26b00;
+  --warn-bg: #fff6e5;
+  --error: #c0362c;
+  --error-bg: #fdecea;
+  --info-bg: #e8f6f6;
+
+  /* --- Typographie --- */
+  --font-title: 'Quicksand', system-ui, sans-serif;  /* 600/700 */
+  --font-body: 'Roboto', system-ui, sans-serif;       /* 400/500/700 */
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace; /* cotes, références de devis */
+
+  /* Échelle fluide (mobile → desktop) */
+  --fs-xs: 0.8125rem;                              /* 13 — mentions, légendes */
+  --fs-s: 0.9375rem;                               /* 15 — UI, corps du devis */
+  --fs-m: 1.0625rem;                               /* 17 — corps des articles */
+  --fs-l: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);  /* H3 */
+  --fs-xl: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem); /* H2 */
+  --fs-2xl: clamp(2rem, 1.4rem + 2.8vw, 3.5rem);   /* H1 */
+  --lh-tight: 1.15;
+  --lh-body: 1.6;
+  --measure: 68ch;                                  /* largeur de lecture max des articles */
+
+  /* --- Espacements (base 4 px) --- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px; --sp-9: 96px;
+  --section-y: clamp(48px, 6vw, 112px);
+  --gutter: clamp(16px, 4vw, 40px);
+  --container: 1240px;
+
+  /* --- Formes --- */
+  --radius-s: 10px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 4px 16px rgba(17, 45, 99, 0.1);
+  --shadow-float: 0 18px 50px rgba(17, 45, 99, 0.16), 0 2px 8px rgba(17, 45, 99, 0.08);
+
+  /* --- Mouvement --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 500ms;
+
+  /* --- Points de rupture (référence, à utiliser dans les media queries) ---
+     sm 600px · md 760px (identique au devis) · lg 1024px · xl 1280px */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+}

@@ -1,0 +1,19 @@
+# Système et éditeurs
+.DS_Store
+*.swp
+.idea/
+.vscode/
+.claude/settings.local.json
+
+# Dépendances, caches, builds
+node_modules/
+.npm-cache/
+dist/
+*.log
+
+# Secrets et données locales (ne jamais publier)
+.env
+.env.*.local
+**/server/.env
+**/server/data/
+.vercel/

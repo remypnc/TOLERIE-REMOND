@@ -1,0 +1,439 @@
+.app {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 700px at 35% 45%, #ffffff 0%, #f3f6fa 60%, #e9eef5 100%);
+}
+
+/* ---------- En-tête ---------- */
+.top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 22px 28px;
+  pointer-events: none;
+}
+.top > * { pointer-events: auto; }
+.brand img { height: 46px; display: block; }
+.steps { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; margin: 0; padding: 4px; list-style: none; border-radius: 999px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px); border: 1px solid var(--line); }
+.accountBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 220px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0 16px 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  color: var(--navy);
+  font: 600 14px var(--font-title);
+  cursor: pointer;
+  transition: margin 0.55s var(--ease-out), opacity 0.3s;
+}
+.headRight { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.headRight .accountBtn { margin-left: 0; }
+.iconOnly { width: 44px; padding: 0; justify-content: center; }
+.iconOnly > svg { background: none !important; }
+.editOn { border-color: var(--navy); background: var(--navy) !important; color: #fff; }
+.editOn > svg { background: rgba(255, 255, 255, 0.14) !important; }
+.devNote { margin: 0 0 4px; padding: 8px 12px; border-radius: var(--radius-s); background: #edf1f8; color: var(--navy) !important; font-size: 13px; }
+.devNote a { color: var(--accent); font-weight: 600; }
+.accountBtn:hover { background: #fff; box-shadow: var(--shadow-soft); }
+.accountBtn > svg, .accountBtn > b { flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 7px; border-radius: 50%; background: var(--panel); }
+.accountBtn > b { padding: 0; background: var(--navy); color: #fff; font-size: 14px; }
+.accountBtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.steps li { display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 6px; border-radius: 999px; font-size: 13px; color: var(--text-soft); transition: background 0.3s, color 0.3s; }
+.steps li span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--panel-strong); font-size: 11px; font-weight: 700; }
+.steps .stepOn { background: var(--navy); color: #fff; }
+.steps .stepOn span { background: var(--accent); color: #fff; }
+.steps .stepDone span { background: var(--accent); color: #fff; }
+
+/* ---------- Zone 3D ---------- */
+.stageArea {
+  position: absolute;
+  inset: 0;
+  transition: right 0.55s var(--ease-out);
+}
+.config.dockOpen .stageArea { right: calc(var(--dock-w) + 24px); }
+
+.estimate {
+  position: absolute;
+  top: 92px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  font-variant-numeric: tabular-nums;
+}
+.estimate span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; }
+.estimate strong { font: 700 24px/1.2 var(--font-title); color: var(--navy); }
+.estimate small { font-size: 12px; font-weight: 500; color: var(--text-soft); }
+.estimate em { font-style: normal; font-size: 12px; color: var(--text-soft); }
+
+/* ---------- Barre de vues : toujours centrée sur la zone 3D ---------- */
+.viewBar {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100vw - 56px);
+  padding: 5px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  transition: opacity 0.3s, left 0.55s var(--ease-out);
+}
+.config.dockOpen .viewBar { left: calc((100% - var(--dock-w) - 24px) / 2); max-width: calc(100% - var(--dock-w) - 72px); }
+/* Chat replié : la barre se centre sur la place laissée à gauche de la bulle, sans passer dessous. */
+.config:not(.dockOpen) .viewBar { left: calc((100% - 384px) / 2); max-width: calc(100% - 432px); }
+.preview .viewBar { top: 92px; bottom: auto; }
+/* Premier écran : la saisie occupe le bas, les vues passent en haut comme à l'étape 2. */
+.config.intro .viewBar { top: 92px; bottom: auto; left: 50%; max-width: calc(100% - 432px); }
+.tbIcon {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 52px;
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: var(--navy);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tbIcon small { font-size: 10px; line-height: 1; color: var(--text-soft); white-space: nowrap; }
+.tbIcon:hover { background: var(--panel); }
+.tbOn, .tbOn:hover { background: var(--navy); color: #fff; }
+.tbOn small { color: rgba(255, 255, 255, 0.8); }
+.sep { flex: none; width: 1px; height: 28px; margin: 0 3px; background: var(--line); }
+
+/* Colonne de droite : outils d'édition puis zoom, centrée verticalement */
+.rightRail {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  z-index: 16;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(-50%);
+  transition: right 0.55s var(--ease-out), opacity 0.3s;
+}
+.config.dockOpen .rightRail { right: calc(var(--dock-w) + 48px); }
+.zoomBar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+.zoomBar button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: var(--navy); cursor: pointer; }
+.zoomBar button:hover:not(:disabled) { background: var(--panel); }
+.zoomBar button:disabled { opacity: 0.35; cursor: default; }
+
+
+/* ---------- Preview : outils d'édition, colonne verticale à droite ---------- */
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--navy);
+  box-shadow: var(--shadow-float);
+  animation: slideIn 0.5s var(--ease-out) both;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateX(12px); } }
+.tools button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.tools button:hover { background: rgba(255, 255, 255, 0.12); }
+.tools .toolOn, .tools .toolOn:hover { background: var(--accent); }
+.tip {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 12px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(4px, -50%);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.tools button:hover .tip, .tools button:focus-visible .tip { opacity: 1; transform: translate(0, -50%); }
+/* Consigne de l'outil actif : centrée, juste sous la barre des vues */
+.toolHint {
+  position: absolute;
+  top: 166px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 16;
+  max-width: min(280px, calc(100vw - 48px));
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #e6f7f7;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  animation: slideIn2 0.3s var(--ease-out) both;
+}
+@keyframes slideIn2 { from { opacity: 0; transform: translate(-50%, -6px); } }
+
+/* ---------- Preview : barre de discussion centrale ---------- */
+.previewBar {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 640px) 1fr;
+  grid-template-areas:
+    'est msg .'
+    'back comp ok';
+  align-items: end;
+  gap: 12px 16px;
+  pointer-events: none;
+  animation: rise 0.6s var(--ease-out) both;
+}
+.previewBar > * { pointer-events: auto; }
+@keyframes rise { from { opacity: 0; transform: translateY(30px); } }
+.introBar { grid-template-areas: '. msg .' '. comp .'; }
+.pbEstimate { grid-area: est; justify-self: start; }
+.pbEstimate .estimate { position: static; }
+.lastMsg { grid-area: msg; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 0; }
+.pbBack { grid-area: back; justify-self: start; }
+.pbComposer { grid-area: comp; min-width: 0; }
+.pbOk { grid-area: ok; justify-self: end; }
+/* Retour, saisie et confirmation : alignés sur le même axe horizontal */
+.pbBack, .pbComposer, .pbOk { align-self: center; }
+
+.ghostBtn, .primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font: 600 15px var(--font-title);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.ghostBtn { border: 1px solid var(--line); background: rgba(255, 255, 255, 0.9); color: var(--navy); box-shadow: var(--shadow-soft); }
+.ghostBtn:hover { background: #fff; }
+.primaryBtn { border: 0; background: var(--accent); color: #fff; box-shadow: 0 10px 26px rgba(0, 162, 163, 0.35); }
+.primaryBtn:hover { background: #008f90; transform: translateY(-1px); }
+.primaryBtn:disabled { opacity: 0.6; cursor: progress; }
+
+/* ---------- Devis ---------- */
+.quoteArea { position: absolute; inset: 84px 0 100px 0; }
+.quoteActions {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 12;
+  display: flex;
+  gap: 12px;
+  transform: translateX(-50%);
+  animation: rise 0.6s var(--ease-out) 1.6s both;
+}
+
+.sentBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(8, 18, 40, 0.6);
+  backdrop-filter: blur(6px);
+  animation: fade 0.3s ease both;
+}
+@keyframes fade { from { opacity: 0; } }
+.sentCard {
+  width: min(460px, 100%);
+  padding: 32px;
+  border-radius: var(--radius-l);
+  background: #fff;
+  text-align: center;
+  box-shadow: var(--shadow-float);
+  animation: rise 0.5s var(--ease-out) both;
+}
+.sentCard h2 { color: var(--navy); font-size: 24px; margin: 12px 0 8px; }
+.sentCard p { color: var(--text-soft); margin: 0 0 10px; }
+.sentCard .primaryBtn { text-decoration: none; }
+.sentChecks { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0 12px; padding: 0; list-style: none; font-size: 14px; color: var(--ok); }
+.sentChecks li { display: inline-flex; align-items: center; gap: 6px; }
+.sentActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.sentIcon { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: #fff; }
+.sentWarn { padding: 8px 12px; border-radius: var(--radius-s); background: var(--warn-bg); color: var(--warn) !important; font-size: 13px; }
+
+/* ---------- Écrans moyens / téléphone ---------- */
+@media (width < 1300px) {
+  .config .minor { display: none; }
+}
+@media (width < 1100px) {
+  .config.dockOpen .stageArea { right: 0; }
+  .config.dockOpen .viewBar, .config.dockOpen .rightRail { opacity: 0; pointer-events: none; }
+  .previewBar {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'est est est'
+      'msg msg msg'
+      'back comp ok';
+  }
+  .previewBar .ghostBtn span, .previewBar .primaryBtn span { display: none; }
+  .previewBar .ghostBtn, .previewBar .primaryBtn { flex: none; padding: 0; width: 52px; justify-content: center; }
+}
+@media (width < 760px) {
+  .top { padding: 14px 16px; gap: 12px; }
+  /* Logo réduit au pictogramme pour laisser les étapes au centre */
+  .brand img { width: 24px; height: 32px; object-fit: cover; object-position: left center; }
+  .steps { top: 14px; }
+  /* Étapes : de simples ronds, seul le libellé de l'étape en cours est affiché */
+  .steps { gap: 4px; }
+  .steps li { font-size: 0; gap: 0; padding: 3px; }
+  .steps li span { font-size: 11px; width: 24px; height: 24px; }
+  .steps .stepOn { font-size: 12px; gap: 6px; padding: 3px 12px 3px 3px; }
+  .accountBtn { height: 38px; padding: 0 3px; }
+  .accountBtn span { display: none; }
+  .estimate { top: 64px; left: 16px; padding: 8px 12px; }
+  .estimate strong { font-size: 18px; }
+  .viewBar { bottom: 112px; max-width: calc(100vw - 32px); }
+  .config.dockOpen .viewBar, .config:not(.dockOpen) .viewBar { left: 50%; max-width: calc(100vw - 32px); }
+  .preview .viewBar, .config.intro .viewBar { top: 64px; bottom: auto; left: 50%; }
+  .tbIcon { width: 40px; height: 40px; }
+  .tbIcon small, .minor { display: none; }
+  .rightRail, .config.dockOpen .rightRail { right: 12px; }
+  .tip { display: none; }
+  .toolHint { top: 126px; white-space: normal; width: max-content; max-width: calc(100vw - 32px); }
+  .pbEstimate .estimate { padding: 6px 12px; }
+  .previewBar { left: 12px; right: 12px; bottom: 12px; gap: 8px; }
+  .quoteArea { position: absolute; inset: 64px 0 0 0; overflow-y: auto; padding-bottom: 96px; }
+  .quoteActions { left: 12px; right: 12px; transform: none; justify-content: space-between; }
+  .quoteActions .ghostBtn span { display: none; }
+  .quoteActions .ghostBtn { flex: none; padding: 0; width: 52px; justify-content: center; }
+  .quoteActions .primaryBtn { flex: 1; min-width: 0; justify-content: center; }
+}
+
+/* Produit assemblé : boutons des ouvrants et mise en marche, colonne à gauche de la 3D. */
+.mechBar {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: left 0.4s var(--ease-out);
+}
+.mechShift { left: 364px; }
+.mechBar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  color: var(--navy);
+  font: 600 13px var(--font-body);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.mechBar button:hover { border-color: var(--accent); }
+.mechBar .mechOn { border-color: var(--accent); background: #e6f7f7; color: #007576; }
+.mechBar .mechPower.mechOn { background: var(--navy); border-color: var(--navy); color: #fff; }
+.mechBar .mechPower.mechOn svg { color: #4ade80; }
+
+/* Coupe : choix du plan et curseur, dans la barre de vues. */
+.sectionCtl { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; }
+.sectionCtl button { height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--navy); font: 600 12px var(--font-body); cursor: pointer; }
+.sectionCtl .sectionOn { border-color: #ff7a00; background: #fff4ea; color: #c25400; }
+.sectionCtl input { width: 110px; accent-color: #ff7a00; }
+
+@media (width < 760px) {
+  .mechBar { left: 12px; top: auto; bottom: 230px; transform: none; }
+  .mechShift { left: 12px; }
+  .mechBar button span { display: none; }
+  .mechBar button { padding: 0 11px; }
+  .sectionCtl input { width: 70px; }
+}
+
+/* Étape devis : choix des fichiers CAO (fait varier les frais de conception). */
+.cadOptions {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-soft);
+  font-size: 13px;
+  color: var(--navy);
+  max-width: 320px;
+}
+.cadOptions legend { float: left; width: 100%; margin-bottom: 2px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.cadOptions label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.cadOptions input { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--accent); }
+.cadOptions small { color: var(--text-soft); font-size: 12px; }
+@media (width < 1100px) {
+  .cadOptions { left: 50%; bottom: 92px; transform: translateX(-50%); max-width: calc(100vw - 32px); }
+}
+.colorWrap { position: relative; display: inline-flex; }

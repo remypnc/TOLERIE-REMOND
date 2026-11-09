@@ -1,0 +1,581 @@
+<title>Refonte Tôlerie Rémond</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Layout : sommaire collant à gauche (desktop), colonne de lecture unique ; DA = tokens du devis instantané */
+:root{
+  --navy:#112d63;--blue:#205d91;--accent:#00a2a3;--accent-strong:#007576;
+  --bg:#ffffff;--panel:#f5f6f8;--panel-strong:#eceff4;--line:#e3e7ee;
+  --text:#1d2433;--soft:#5b6475;--head:#112d63;
+  --p0:#c0362c;--p0-bg:#fdecea;--p1:#9a5c00;--p1-bg:#fff6e5;--p2:#205d91;--p2-bg:#e9f1f8;--ok:#138a5b;--ok-bg:#e7f5ee;
+  --hero-bg:#112d63;--hero-fg:#ffffff;--hero-soft:#c5d1e6;--hero-accent:#00dbdc;
+  --step-bg:#112d63;
+  --font-title:'Quicksand',system-ui,sans-serif;--font-body:'Roboto',system-ui,sans-serif;--mono:ui-monospace,'SF Mono',Menlo,monospace;
+  --r-s:10px;--r-m:18px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1524;--panel:#151e31;--panel-strong:#1c2740;--line:#26324c;--text:#dfe5f0;--soft:#9aa6bd;--head:#e8eefa;
+  --accent-strong:#3cc6c7;--blue:#7fb2e0;
+  --p0:#ff8a80;--p0-bg:#3a1b1b;--p1:#f0b65a;--p1-bg:#33270f;--p2:#8fbfeb;--p2-bg:#16263d;--ok:#5fd19f;--ok-bg:#12301f;
+  --hero-bg:#0a1f47;--step-bg:#205d91;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1524;--panel:#151e31;--panel-strong:#1c2740;--line:#26324c;--text:#dfe5f0;--soft:#9aa6bd;--head:#e8eefa;
+  --accent-strong:#3cc6c7;--blue:#7fb2e0;
+  --p0:#ff8a80;--p0-bg:#3a1b1b;--p1:#f0b65a;--p1-bg:#33270f;--p2:#8fbfeb;--p2-bg:#16263d;--ok:#5fd19f;--ok-bg:#12301f;
+  --hero-bg:#0a1f47;--step-bg:#205d91;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-title);color:var(--head);line-height:1.2;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.45rem,1.2rem + 1vw,1.95rem);margin-bottom:12px}
+h3{font-size:1.15rem;margin:28px 0 8px}
+p{margin:0 0 12px}
+a{color:var(--accent-strong)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.hero{background:var(--hero-bg);color:var(--hero-fg)}
+.hero .wrap{padding-block:56px 48px}
+.eyebrow{font:500 .78rem/1 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--accent-strong);margin-bottom:10px}
+.hero .eyebrow{color:var(--hero-accent)}
+.hero h1{color:#fff;font-size:clamp(2rem,1.4rem + 2.6vw,3.2rem);max-width:20ch}
+.hero p.lead{color:var(--hero-soft);font-size:1.1rem;max-width:62ch;margin-top:16px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;color:var(--hero-soft);font-size:.9rem}
+.meta b{color:#fff;font-weight:500}
+
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;font-size:.88rem;max-height:calc(100vh - 40px);overflow:auto}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:t}
+nav.toc a{display:block;padding:5px 10px;border-radius:8px;color:var(--soft);text-decoration:none;border-left:2px solid transparent}
+nav.toc a:hover{background:var(--panel);color:var(--head)}
+nav.toc .tt{font:600 .75rem var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin:0 0 8px 12px}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:24px}nav.toc{position:static;max-height:none}nav.toc ol{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+
+main section{padding-block:36px;border-top:1px solid var(--line)}
+main section:first-child{border-top:0;padding-top:0}
+main section>p,main section>ul,main section>ol{max-width:72ch}
+ul,ol{padding-left:1.2em;margin:0 0 12px}
+li{margin:4px 0}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 8px}
+.stat{background:var(--panel);border-radius:var(--r-s);padding:14px 16px}
+.stat .n{font:700 1.75rem/1.1 var(--font-title);color:var(--head);font-variant-numeric:tabular-nums}
+.stat .l{font-size:.86rem;color:var(--soft);margin-top:4px}
+.src{font-size:.8rem;color:var(--soft)}
+
+.tbl{overflow-x:auto;margin:14px 0 18px;border:1px solid var(--line);border-radius:var(--r-s)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:620px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel);font-weight:500;color:var(--head);font-size:.82rem;letter-spacing:.02em}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.pill{display:inline-block;font:500 .74rem/1 var(--font-body);padding:5px 8px;border-radius:999px;white-space:nowrap}
+.p0{background:var(--p0-bg);color:var(--p0)}.p1{background:var(--p1-bg);color:var(--p1)}.p2{background:var(--p2-bg);color:var(--p2)}.ok{background:var(--ok-bg);color:var(--ok)}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:14px 0}
+.box{border:1px solid var(--line);border-radius:var(--r-m);padding:18px 20px;min-width:0}
+.box h3{margin-top:0}
+.box.keep{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.box.change{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.callout{background:var(--panel);border-radius:var(--r-m);padding:16px 20px;margin:16px 0;max-width:80ch}
+.callout strong{color:var(--head)}
+pre.tree{background:var(--panel);border-radius:var(--r-s);padding:16px 18px;overflow-x:auto;font:400 .84rem/1.55 var(--mono);color:var(--text);margin:14px 0}
+pre.mermaid{background:var(--panel);border-radius:var(--r-s);padding:16px;overflow-x:auto;margin:14px 0}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:10px;max-width:80ch}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;margin:0}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--step-bg);color:#fff;font:700 .9rem/30px var(--font-title);text-align:center}
+footer{border-top:1px solid var(--line);color:var(--soft);font-size:.85rem}
+footer .wrap{padding-block:24px 40px}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Tôlerie Rémond · Plan de refonte digitale</div>
+    <h1>Nouveau site, devis instantané et articles automatisés</h1>
+    <p class="lead">Base de travail pour remplacer le site WordPress actuel par un site moderne aligné sur l'interface de devis 3D, sans perdre les clients existants ni le référencement acquis, puis industrialiser la production d'articles SEO / GEO et leur diffusion sur LinkedIn.</p>
+    <div class="meta"><span>Établi le <b>6 novembre 2026</b></span><span>Audit en direct de <b>73 URL</b></span><span>Sources : site actuel, benchmark du 2 nov. 2026, présentation des missions, code du devis 3D</span></div>
+  </div>
+</header>
+
+<div class="wrap layout">
+<nav class="toc" aria-label="Sommaire">
+  <p class="tt">Sommaire</p>
+  <ol>
+    <li><a href="#synthese">Synthèse</a></li>
+    <li><a href="#urgences">Urgences (avant refonte)</a></li>
+    <li><a href="#audit">Audit du site actuel</a></li>
+    <li><a href="#garder">Garder / changer</a></li>
+    <li><a href="#heatmap">Heatmap et données</a></li>
+    <li><a href="#arbo">Arborescence cible</a></li>
+    <li><a href="#stack">Choix technique</a></li>
+    <li><a href="#backoffice">Devis et back-office</a></li>
+    <li><a href="#articles">Articles automatisés</a></li>
+    <li><a href="#seo">SEO et GEO</a></li>
+    <li><a href="#avis">Avis, formulaires, LinkedIn</a></li>
+    <li><a href="#migration">Migration sans perte</a></li>
+    <li><a href="#planning">Planning et charges</a></li>
+    <li><a href="#couts">Coûts et maintenance</a></li>
+    <li><a href="#ds">Design system</a></li>
+    <li><a href="#plus">Suggestions entreprise</a></li>
+    <li><a href="#missions">Mes missions</a></li>
+    <li><a href="#decisions">À fournir / décider</a></li>
+  </ol>
+</nav>
+
+<main>
+<section id="synthese">
+  <div class="eyebrow">En bref</div>
+  <h2>Synthèse</h2>
+  <p>Le site actuel publie régulièrement des réalisations (25 articles en 2026) mais il est techniquement fragile et mal balisé pour Google : presque aucune page n'a de meta description, les articles n'ont pas de titre H1, 82 % des images n'ont pas de texte alternatif, il n'y a ni mentions légales ni bandeau cookies alors que Google Ads et LinkedIn Insight sont chargés. L'accueil renvoie vers une page qui n'existe plus.</p>
+  <p>La refonte proposée garde l'identité (navy, turquoise, logo, polices) que le devis 3D reprend déjà, et remplace WordPress par un site sur mesure avec un back-office unique : demandes de devis, contacts, articles, avis clients. Les articles sont rédigés par l'IA à partir d'un simple e-mail avec photos, puis validés par un humain avant publication.</p>
+  <div class="stats" role="list">
+    <div class="stat" role="listitem"><div class="n">72 / 73</div><div class="l">pages sans meta description</div></div>
+    <div class="stat" role="listitem"><div class="n">64 / 64</div><div class="l">réalisations sans H1</div></div>
+    <div class="stat" role="listitem"><div class="n">82 %</div><div class="l">images sans alt (1 034 / 1 254)</div></div>
+    <div class="stat" role="listitem"><div class="n">72 / 73</div><div class="l">titles de plus de 60 caractères</div></div>
+    <div class="stat" role="listitem"><div class="n">37</div><div class="l">scripts chargés sur l'accueil</div></div>
+    <div class="stat" role="listitem"><div class="n">PHP 7.4</div><div class="l">fin de support depuis nov. 2022</div></div>
+  </div>
+  <p class="src">Mesuré le 06/11/2026 sur les URL du sitemap Yoast (8 pages, 64 réalisations, 1 catégorie). Détail ligne par ligne dans <code>site-refonte/inventaire-urls-et-redirections.csv</code>.</p>
+</section>
+
+<section id="urgences">
+  <div class="eyebrow">À traiter sur le WordPress actuel, sans attendre la refonte</div>
+  <h2>Urgences</h2>
+  <p>Ces points exposent l'entreprise (juridique, sécurité, confidentialité des plans clients) ou font perdre des demandes dès aujourd'hui. Ils se corrigent en 3 à 5 jours.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Priorité</th><th>Constat</th><th>Risque</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p0">P0</span></td><td>Aucune page mentions légales (<code>/mentions-legales</code> en 404)</td><td>Obligation légale (LCEN) pour un site d'entreprise</td><td>Créer la page : raison sociale, SIRET, siège, directeur de publication, hébergeur OVH</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Google Analytics 4, Google Ads (<code>AW-</code>) et LinkedIn Insight chargés sans bandeau de consentement détecté</td><td>Non-conformité RGPD / CNIL</td><td>Installer un outil de consentement (mode Consent v2) et bloquer les tags avant accord</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>Plans clients déposés via WPForms dans <code>/wp-content/uploads/wpforms/</code>, seulement « cachés » par robots.txt</td><td>Fichiers confidentiels potentiellement accessibles par URL</td><td>Vérifier l'accès direct, interdire le listing, déplacer les pièces jointes hors du dossier public</td></tr>
+      <tr><td><span class="pill p0">P0</span></td><td>PHP 7.4, Slider Revolution 6.2.2, WPBakery, thème The7 : versions anciennes</td><td>Failles connues sur les vieilles versions, site piratable</td><td>Sauvegarde complète, passage PHP 8.2+, mise à jour des extensions, fermer <code>xmlrpc.php</code></td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>3 liens de l'accueil vers <code>/decoupe-numerique-metal-sur-mesure-…</code> (404)</td><td>Visiteurs perdus, signal négatif pour Google</td><td>Redirection 301 vers la page Savoir-faire</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Promesse de délai incohérente : « 48 h » (106 occurrences) et « 24/72 h » sur la page devis</td><td>Perte de confiance</td><td>Arbitrer un seul délai réaliste et l'afficher partout</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Aucun outil de heatmap installé</td><td>Pas de données pour décider quelles sections garder</td><td>Installer Microsoft Clarity (gratuit) dès maintenant, derrière le consentement</td></tr>
+      <tr><td><span class="pill p1">P1</span></td><td>Ancien tag Universal Analytics (<code>UA-12932700</code>) encore présent, deux extensions de formulaire (Contact Form 7 + WPForms)</td><td>Code mort, suivi des conversions faussé</td><td>Retirer UA, mesurer les envois de formulaire comme conversions GA4</td></tr>
+      <tr><td><span class="pill p2">P2</span></td><td>Commentaires ouverts sur les réalisations, page auteur <code>/author/timothee/</code> indexée</td><td>Spam, page sans valeur dans Google</td><td>Fermer les commentaires, passer la page auteur en noindex</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="audit">
+  <div class="eyebrow">État des lieux</div>
+  <h2>Audit du site actuel</h2>
+
+  <h3>Référencement technique</h3>
+  <ul>
+    <li>Meta description absente sur 72 pages sur 73 : Google génère un extrait au hasard, souvent tronqué.</li>
+    <li>Titles de 60 à 160 caractères, avec le suffixe « Tôlerie Rémond - Montbard, Dijon, Bourgogne » répété partout, et la marque deux fois sur l'accueil.</li>
+    <li>Les 64 réalisations n'ont aucun H1 ; à l'inverse, la page Savoir-faire en a 10 et l'accueil 4.</li>
+    <li>Données structurées réduites au minimum de Yoast (Organization, Article) : pas de <code>LocalBusiness</code>, <code>Service</code>, <code>FAQPage</code> ni avis.</li>
+    <li>Toutes les réalisations sont à la racine dans une seule catégorie : pas de silo par secteur ou par procédé, peu de liens internes.</li>
+    <li>Aucun lien depuis l'accueil vers les sites du groupe (Fabricant Meuble Métal, Fabricant Banque d'Accueil, ZHED, BOMUUR).</li>
+  </ul>
+
+  <h3>Contenu</h3>
+  <ul>
+    <li>64 réalisations de 320 à 800 mots (médiane 517) : bonne matière première, mais pas de fiche technique (matière, épaisseur, procédé, quantité, délai) ni de FAQ.</li>
+    <li>Pas de page par procédé (tout tient dans la page Savoir-faire), pas de page par secteur, pas de guides ou ressources techniques, alors que ce sont les pages que Google et les assistants IA citent.</li>
+    <li>Capacités machines (formats, épaisseurs par matière, tolérances) non chiffrées : c'est le premier critère d'un acheteur B2B selon le benchmark.</li>
+    <li>Photos d'origine WhatsApp, JPG / PNG non optimisés, aucun format WebP ou AVIF.</li>
+    <li>Ni avis clients, ni logos de références, ni certifications affichés.</li>
+  </ul>
+
+  <h3>UX / UI et conversion</h3>
+  <ul>
+    <li>Le menu ne montre pas les offres par besoin (pièces, sous-ensembles, mobilier, produit sur mesure) : le visiteur doit deviner.</li>
+    <li>Deux parcours de contact différents (page Contact en Contact Form 7, page Devis en WPForms), sans référence de demande ni suivi.</li>
+    <li>Le CTA devis n'est pas visible en permanence, en particulier sur mobile.</li>
+    <li>Style visuel des années 2020 (slider, page builder) en décalage net avec l'interface devis 3D.</li>
+  </ul>
+
+  <h3>Accessibilité</h3>
+  <ul>
+    <li>Images sans alternative, hiérarchie de titres cassée, sliders automatiques : objectif WCAG 2.2 AA / RGAA 4.1 inatteignable en l'état.</li>
+    <li>Le turquoise actuel <code>#00a2a3</code> ne fait que 3,1:1 sur blanc : il ne doit pas servir pour du texte ni en fond de bouton avec texte blanc. Le design system prévoit une variante foncée à 5,5:1.</li>
+  </ul>
+
+  <h3>Performance</h3>
+  <p>Le serveur répond vite (0,3 à 1 s), mais l'accueil charge 37 scripts et 19 feuilles de style (WPBakery, Ultimate Addons, Slider Revolution, The7). Un audit Lighthouse / Core Web Vitals sur mobile reste à faire avec les données réelles de Search Console.</p>
+
+  <div class="callout"><strong>Concurrence.</strong> Le benchmark du 2 novembre situe Rémond entre les ateliers comparables (Weber, CFW, Toléa), les intégrateurs « de A à Z » (ACP, ATRAM) et les plateformes de devis instantané (Tolery, Xometry). Le nouveau site doit emprunter aux premiers la preuve industrielle (machines, chiffres, réalisations), aux seconds le récit projet, et aux plateformes la rapidité du devis. Le devis 3D est la réponse directe à Tolery et Xometry, avec en plus la vérification par un technicien.</div>
+</section>
+
+<section id="garder">
+  <div class="eyebrow">Éviter le churn</div>
+  <h2>Ce qu'on garde, ce qu'on change</h2>
+  <p>Un client qui revient doit retrouver ses repères immédiatement. La nouveauté passe par la qualité et la clarté, pas par une identité méconnaissable.</p>
+  <div class="two">
+    <div class="box keep">
+      <h3>On garde</h3>
+      <ul>
+        <li>Logo, navy <code>#112d63</code>, turquoise <code>#00a2a3</code>, Quicksand + Roboto</li>
+        <li>Le domaine, le téléphone, l'adresse e-mail, l'adresse de l'atelier</li>
+        <li>Les libellés connus : Savoir-faire, Réalisations, Devis, Contact</li>
+        <li>Toutes les réalisations publiées (contenu enrichi, URL redirigées)</li>
+        <li>Le contact humain : un nom et un numéro visibles sur chaque page</li>
+      </ul>
+    </div>
+    <div class="box change">
+      <h3>On change</h3>
+      <ul>
+        <li>Mise en page aérée, photos d'atelier en grand, chiffres de capacité</li>
+        <li>Entrées par besoin et par secteur, filtres sur les réalisations</li>
+        <li>Bouton « Devis instantané » permanent, devis 3D intégré</li>
+        <li>Un seul formulaire relié au back-office, référence de suivi envoyée par e-mail</li>
+        <li>Espace client : historique des devis, nouvelle demande pré-remplie</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Accompagner les clients actuels</h3>
+  <ul>
+    <li>E-mail aux clients existants à la mise en ligne : « Nouveau site, nouveau devis en ligne », avec un lien direct vers le devis 3D.</li>
+    <li>Bandeau discret pendant un mois : « Notre site fait peau neuve. Vous cherchez une page ? » avec recherche.</li>
+    <li>Page 404 utile : recherche, réalisations proches, numéro de téléphone.</li>
+  </ul>
+</section>
+
+<section id="heatmap">
+  <div class="eyebrow">Décider sur des faits</div>
+  <h2>Heatmap et données</h2>
+  <p>Je n'ai pas accès aux statistiques actuelles. Avant de figer les maquettes, il faut 4 à 6 semaines de données. Le calendrier le permet : on collecte pendant qu'on construit le design system.</p>
+  <ol class="steps">
+    <li><div><strong>Cette semaine :</strong> installer Microsoft Clarity (heatmaps, enregistrements de sessions, clics de rage) sur le WordPress, derrière le consentement.</div></li>
+    <li><div><strong>Exporter</strong> de Google Analytics 4 et Search Console : pages d'entrée, requêtes, pages qui génèrent des demandes, appareils (mobile / desktop).</div></li>
+    <li><div><strong>Interroger</strong> 5 à 8 clients récurrents et l'équipe commerciale : comment ils utilisent le site, ce qu'ils y cherchent.</div></li>
+    <li><div><strong>Classer chaque section</strong> de l'accueil et des pages clés avec la grille ci-dessous.</div></li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th>Signal mesuré</th><th>Décision</th></tr></thead>
+    <tbody>
+      <tr><td>Section très vue, beaucoup de clics, mène à une demande</td><td><span class="pill ok">Garder</span> et mettre plus haut</td></tr>
+      <tr><td>Section vue mais peu cliquée</td><td><span class="pill p2">Réécrire</span> : message ou visuel à revoir</td></tr>
+      <tr><td>Section rarement atteinte au scroll</td><td><span class="pill p1">Fusionner</span> ou remonter son contenu utile</td></tr>
+      <tr><td>Clics sur un élément non cliquable, clics de rage</td><td><span class="pill p0">Corriger</span> : attente non satisfaite</td></tr>
+      <tr><td>Section présente chez 3 concurrents sur 5 et absente chez nous</td><td><span class="pill p2">Ajouter</span> (capacités, process, avis, FAQ)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Après la mise en ligne, Clarity reste en place pour suivre le nouveau site et tester les variantes de l'accueil et du parcours devis.</p>
+</section>
+
+<section id="arbo">
+  <div class="eyebrow">Pages et URL</div>
+  <h2>Arborescence cible</h2>
+  <p>Chaque page actuelle a une destination dans le fichier d'inventaire. Les réalisations gardent leur slug et passent sous <code>/realisations/</code> avec une redirection 301.</p>
+<pre class="tree">/                                  Accueil
+/devis                             Devis instantané 3D  (+ /devis/plan : déposer un STEP, DXF, DWG, PDF)
+/savoir-faire                      Hub des procédés
+   /bureau-etudes-conception-3d
+   /decoupe-laser-poinconnage      combiné AMADA, cisaillage
+   /pliage-tole
+   /soudure-tig-mig
+   /assemblage-goujonnage-sertissage
+   /finitions-thermolaquage
+/secteurs                          Hub des marchés
+   /industrie-electrique           armoires, coffrets, carters, châssis      12 réalisations
+   /bornes-equipements-medicaux    bornes, consoles, cabines                 13
+   /agencement-mobilier            banques d'accueil, mobilier, vitrines     13
+   /batiment-architecture          façades, persiennes, pergolas             8
+   /ferroviaire-transport          coffrets SNCF, niches techniques          2
+   /plv-retail · /amenagement-exterieur · /agriculture
+/realisations                      Galerie filtrable (secteur, procédé, matière)
+   /realisations/[slug]            64 études de cas migrées
+/ressources                        Guides techniques (GEO) : épaisseurs, inox 304 ou 316, préparer un DXF…
+/entreprise                        Histoire, équipe, atelier, engagements, marques du groupe
+   /parc-machines                  Fiche capacités chiffrée
+   /recrutement
+/avis                              Avis clients vérifiés
+/contact
+/espace-client                     Connexion par lien e-mail, historique des devis
+/mentions-legales · /confidentialite · /cookies · /cgv</pre>
+  <h3>Sections de l'accueil (ordre à confirmer par la heatmap)</h3>
+  <ol>
+    <li>Hero : « Votre partenaire de tôlerie fine, de l'étude au produit prêt à intégrer » + boutons « Devis instantané » et « Déposer un plan ».</li>
+    <li>Bandeau preuves : années d'expérience, matières, épaisseurs 0,5 à 6 mm, délai de réponse, fabriqué en Bourgogne.</li>
+    <li>Quatre portes d'entrée : pièces techniques, sous-ensembles, mobilier et agencement, produit sur mesure.</li>
+    <li>De l'étude à la livraison : les 6 étapes du benchmark (étude 3D, découpe, formage, assemblage, finition, livraison).</li>
+    <li>Réalisations récentes filtrables (alimentées automatiquement par les nouveaux articles).</li>
+    <li>Secteurs servis et logos clients (avec leur accord).</li>
+    <li>Avis clients et note moyenne.</li>
+    <li>Parc machines en chiffres et vidéo d'atelier.</li>
+    <li>Marques du groupe : Meuble Métal, Banque d'Accueil, ZHED, BOMUUR.</li>
+    <li>FAQ courte, puis bandeau devis.</li>
+  </ol>
+</section>
+
+<section id="stack">
+  <div class="eyebrow">Quitter WordPress</div>
+  <h2>Choix technique</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>Points forts</th><th>Limites</th><th>Avis</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Next.js + Payload CMS + Postgres, sur Vercel</strong></td><td>Back-office unique (articles, devis, contacts, avis), API pour l'IA, brouillons et versions, React comme le devis 3D, rapide et bien référencé</td><td>Demande un développeur pour faire évoluer la structure</td><td><span class="pill ok">Recommandé</span></td></tr>
+      <tr><td>Astro + Keystatic (contenu dans Git)</td><td>Très rapide, très simple, peu coûteux</td><td>Back-office devis à construire à part</td><td><span class="pill p2">Alternative légère</span></td></tr>
+      <tr><td>WordPress refait (thème sur mesure, sans page builder)</td><td>L'équipe connaît l'outil</td><td>Mêmes fragilités de maintenance et d'extensions, intégration du devis moins propre</td><td><span class="pill p1">Déconseillé</span></td></tr>
+      <tr><td>Webflow / Framer</td><td>Édition visuelle agréable</td><td>Abonnement, back-office devis et automatisation limités, peu de maîtrise des données</td><td><span class="pill p1">Déconseillé</span></td></tr>
+      <tr><td>Shopify</td><td>Excellent pour vendre un catalogue</td><td>Pensé pour la vente de produits standards, pas pour du sur-mesure B2B sur devis</td><td><span class="pill p0">Non adapté</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>Architecture recommandée</h3>
+  <ul>
+    <li><strong>Site et back-office</strong> : Next.js (rendu statique des pages, mise à jour instantanée à la publication) avec Payload intégré à l'adresse <code>/admin</code>.</li>
+    <li><strong>Base de données</strong> : Postgres hébergé dans l'UE (Neon ou Supabase, région Francfort ou Paris) ; fonctions Vercel en région Paris.</li>
+    <li><strong>Fichiers</strong> : photos et plans clients sur un stockage privé (Vercel Blob ou S3 OVH), plans jamais publics, liens signés et temporaires.</li>
+    <li><strong>Devis 3D</strong> : le projet <code>devis-3d</code> devient une page du site (même React, mêmes tokens), sa fonction <code>submitQuote</code> écrit dans la base au lieu du navigateur.</li>
+    <li><strong>E-mails</strong> : Resend ou Postmark pour les accusés de réception, notifications atelier et réception des articles par e-mail.</li>
+    <li><strong>OVH</strong> conserve le domaine, le DNS et les boîtes mail ; seul le site part sur Vercel. Hébergement sur OVH possible si l'entreprise y tient (VPS + Docker), au prix de plus de maintenance.</li>
+  </ul>
+<pre class="mermaid">
+flowchart LR
+  V[Visiteur] --> S[Site Next.js]
+  S --> D[Devis 3D]
+  S --> F[Formulaires contact]
+  D --> API[API du site]
+  F --> API
+  API --> DB[(Postgres UE)]
+  API --> M[E-mails client et atelier]
+  M2[articles@ boîte dédiée] --> IA[Agent rédaction Claude]
+  IA --> CMS[Payload : brouillon]
+  CMS --> H{Validation humaine}
+  H -->|Publier| S
+  H -->|Publier| LI[Brouillon LinkedIn]
+  DB --> BO[Back-office atelier]
+  CMS --> BO
+</pre>
+</section>
+
+<section id="backoffice">
+  <div class="eyebrow">Ne plus perdre une demande</div>
+  <h2>Devis instantané et back-office</h2>
+  <p>Le devis 3D produit déjà une demande structurée (<code>QuoteSubmission</code> : référence <code>DEV-AAAAMMJJ-XXXX</code>, contact, pièce, prix estimé, informations manquantes, conversation). Aujourd'hui elle reste dans le navigateur du client ; il faut la brancher.</p>
+  <h3>À développer</h3>
+  <ul>
+    <li><strong>Endpoint</strong> <code>POST /api/devis</code> : validation, enregistrement, pièces jointes en stockage privé, anti-spam (Turnstile), limite de débit.</li>
+    <li><strong>Collections Payload</strong> : Devis, Clients / sociétés, Contacts, Pièces jointes, Avis, Articles, Médias, Journal d'événements.</li>
+    <li><strong>Statuts</strong> : à vérifier → en cours → envoyé → accepté / refusé, avec assignation à un technicien et historique.</li>
+    <li><strong>Notifications</strong> : accusé de réception au client avec sa référence, alerte atelier (e-mail, et Teams ou Slack si utilisé), relance automatique d'un devis envoyé sans réponse après 7 jours.</li>
+    <li><strong>Espace client</strong> : connexion par lien e-mail (sans mot de passe), historique des devis, « refaire ce devis » pré-rempli. C'est le meilleur levier contre le churn.</li>
+    <li><strong>Tableau de bord</strong> : demandes par semaine, délai de première réponse, taux de transformation, valeur, sources (SEO, LinkedIn, direct).</li>
+    <li><strong>Plus tard</strong> : export vers le logiciel de gestion commerciale ou l'ERP actuel, et passerelle avec l'assistant IA du bureau d'études (mission 01).</li>
+    <li><strong>RGPD</strong> : consentement explicite, durée de conservation (par exemple 3 ans sans suite), export et suppression sur demande, registre de traitement.</li>
+  </ul>
+  <h3>Bouton « Devis instantané »</h3>
+  <p>Présent dans le header de toutes les pages, collant en bas d'écran sur mobile, et en fin de chaque réalisation avec des paramètres pré-remplis (secteur, matière, procédé) pour que le client démarre sur un cas proche du sien.</p>
+</section>
+
+<section id="articles">
+  <div class="eyebrow">Un e-mail, un article</div>
+  <h2>Automatisation des articles SEO / GEO</h2>
+  <p>L'équipe envoie un e-mail à une adresse dédiée avec quelques lignes et les photos. L'IA prépare un article complet en brouillon. Un humain relit et publie. Rien n'est publié sans validation : l'IA peut se tromper sur une cote ou une matière.</p>
+  <ol class="steps">
+    <li><div><strong>Réception</strong> : e-mail à <code>articles@tolerie-remond.com</code> (expéditeurs autorisés uniquement). Exemple : « Coffret inox 316 pour station d'épuration, 40 pièces, ép. 2 mm, plié + soudé TIG, client Veolia, livré en 3 semaines » + 6 photos.</div></li>
+    <li><div><strong>Analyse des photos</strong> : l'IA décrit chaque image, choisit la photo principale, écarte les photos floues ou montrant des informations confidentielles, rédige les textes alternatifs, renomme et convertit en AVIF / WebP.</div></li>
+    <li><div><strong>Rédaction</strong> selon le gabarit « Réalisation » du design system : H1, chapeau qui répond directement, fiche technique, besoin, solution, étapes de fabrication avec photos placées au bon endroit, résultat, FAQ.</div></li>
+    <li><div><strong>Optimisation</strong> : title et meta description, slug, mots-clés du secteur, 3 à 4 liens internes vers procédés, secteur et réalisations proches, schémas Article, FAQPage et BreadcrumbList.</div></li>
+    <li><div><strong>Contrôle</strong> : toute information absente de l'e-mail est marquée <code>[À CONFIRMER]</code>, jamais inventée. Nom du client publié seulement avec son accord.</div></li>
+    <li><div><strong>Brouillon</strong> créé dans le back-office ; e-mail au valideur avec lien d'aperçu. Il corrige, publie ou répond à l'e-mail pour demander des changements.</div></li>
+    <li><div><strong>Diffusion</strong> : à la publication, l'IA prépare un post LinkedIn (texte + visuel 4:5) et une version courte pour les autres réseaux ; l'article apparaît automatiquement sur l'accueil, le secteur et le procédé concernés.</div></li>
+  </ol>
+  <div class="callout"><strong>Technique.</strong> Réception par webhook entrant (Resend ou Postmark), agent Claude avec vision pour les images, écriture dans Payload par son API, file d'attente pour reprendre en cas d'erreur. Coût estimé : quelques centimes à quelques dizaines de centimes par article en API. Développement : 6 à 10 jours.</div>
+  <h3>Rythme éditorial conseillé</h3>
+  <ul>
+    <li>1 réalisation par semaine (le rythme actuel de 2026 le permet déjà).</li>
+    <li>2 guides techniques par mois (pages ressources) : ce sont eux qui ressortent dans ChatGPT, Gemini, Perplexity et les aperçus IA de Google.</li>
+    <li>Réécriture progressive des 14 réalisations de 2020-2021, les plus courtes et les moins balisées.</li>
+  </ul>
+</section>
+
+<section id="seo">
+  <div class="eyebrow">Être trouvé, et cité</div>
+  <h2>SEO et GEO</h2>
+  <h3>Fondations (intégrées au nouveau site)</h3>
+  <ul>
+    <li>Gabarits qui imposent un H1, une meta description, des alt, un fil d'Ariane et le bon schéma JSON-LD.</li>
+    <li>Sitemap automatique, URL canoniques, redirections gérées dans le back-office, images AVIF, Core Web Vitals au vert sur mobile.</li>
+    <li><code>LocalBusiness</code> complet : adresse à Crépand, horaires, zone servie, coordonnées GPS, liens vers les profils officiels.</li>
+    <li>Fichier <code>llms.txt</code> à la racine et pages « capacités » en texte clair, lisibles par les assistants IA.</li>
+  </ul>
+  <h3>Groupes de mots-clés à travailler</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Groupe</th><th>Exemples de requêtes</th><th>Page cible</th></tr></thead>
+    <tbody>
+      <tr><td>Local</td><td>tôlerie Dijon, tôlerie Côte-d'Or, découpe laser Bourgogne, tôlerie Montbard</td><td>Accueil, Entreprise, Contact</td></tr>
+      <tr><td>Procédés</td><td>découpe laser tôle sur mesure, pliage tôle à façon, soudure TIG inox sous-traitance</td><td>Pages procédé</td></tr>
+      <tr><td>Produits</td><td>fabricant armoire électrique sur mesure, coffret inox sur mesure, tôle perforée sur mesure, carter de protection</td><td>Pages secteur + réalisations</td></tr>
+      <tr><td>Agencement</td><td>banque d'accueil métal, mobilier métallique sur mesure, présentoir PLV métal</td><td>Secteur agencement + sites du groupe</td></tr>
+      <tr><td>Questions (GEO)</td><td>quelle épaisseur pour un coffret extérieur, inox 304 ou 316, comment préparer un fichier DXF</td><td>Ressources</td></tr>
+      <tr><td>Achat</td><td>devis tôlerie en ligne, sous-traitant tôlerie fine prototype petite série</td><td>Devis, Savoir-faire</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Volumes de recherche à valider avec Search Console et un outil de mots-clés avant de prioriser.</p>
+  <h3>Autorité et visibilité IA</h3>
+  <ul>
+    <li>Fiche Google Business Profile complète et animée (photos, posts, réponses aux avis).</li>
+    <li>Même nom, adresse, téléphone et description partout : site, Google, LinkedIn, Pages Jaunes, annuaires industriels, CCI.</li>
+    <li>Liens croisés entre les cinq sites du groupe, chacun sur son territoire, sans contenu dupliqué.</li>
+    <li>Partenariats locaux et clients : études de cas publiées chez eux, salons, articles dans la presse régionale.</li>
+  </ul>
+</section>
+
+<section id="avis">
+  <div class="eyebrow">Confiance et contact</div>
+  <h2>Avis clients, formulaires et LinkedIn</h2>
+  <div class="two">
+    <div class="box">
+      <h3>Avis clients</h3>
+      <ul>
+        <li>E-mail automatique 10 jours après livraison avec lien vers l'avis Google.</li>
+        <li>Avis affichés sur le site depuis Google (avis réels uniquement, jamais rédigés).</li>
+        <li>Témoignages détaillés intégrés aux études de cas, avec accord écrit.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Formulaires</h3>
+      <ul>
+        <li>Un seul composant, trois usages : contact, dépôt de plan, rappel.</li>
+        <li>Champs minimum : e-mail obligatoire, le reste facultatif ; pièces jointes 50 Mo.</li>
+        <li>Référence de suivi, accusé de réception, enregistrement dans le back-office.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>LinkedIn et réseaux</h3>
+      <ul>
+        <li>Post préparé à chaque article, validé puis publié sur la page entreprise.</li>
+        <li>Gabarits visuels 1:1 et 4:5 issus du design system.</li>
+        <li>Plus tard : vidéos courtes d'atelier, portraits d'équipe, coulisses de fabrication.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="src">La publication automatique sur une page entreprise LinkedIn passe par l'API LinkedIn (accès à demander) ou par un outil type Buffer. En attendant, le post est préparé et publié à la main en un clic.</p>
+</section>
+
+<section id="migration">
+  <div class="eyebrow">Zéro perte de trafic</div>
+  <h2>Migration sans perte</h2>
+  <ol class="steps">
+    <li><div><strong>Avant</strong> : sauvegarde complète du WordPress, export Search Console (pages et requêtes sur 16 mois), liste des liens entrants, captures de l'ancien site.</div></li>
+    <li><div><strong>Inventaire</strong> : les 73 URL et leur nouvelle destination sont dans <code>inventaire-urls-et-redirections.csv</code> ; ajouter les images et PDF les plus consultés.</div></li>
+    <li><div><strong>Redirections 301</strong> une par une, testées automatiquement avant la mise en ligne ; aucune chaîne de redirections.</div></li>
+    <li><div><strong>Préproduction</strong> en noindex, recette complète (contenu, formulaires, devis, mobile, accessibilité, performance).</div></li>
+    <li><div><strong>Bascule DNS</strong> en semaine, hors période chargée ; nouveau sitemap envoyé à Google ; ancien site gardé en lecture seule 3 mois.</div></li>
+    <li><div><strong>Suivi</strong> quotidien des erreurs 404 et des positions pendant 4 semaines, puis hebdomadaire.</div></li>
+  </ol>
+</section>
+
+<section id="planning">
+  <div class="eyebrow">Temps de développement</div>
+  <h2>Planning et charges</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Lot</th><th>Contenu</th><th>Charge</th><th>Période</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p0">0</span> Urgences</td><td>Mentions légales, consentement, sécurité, 404, Clarity</td><td class="num">3–5 j</td><td>Sem. 46–47 (nov. 2026)</td></tr>
+      <tr><td><span class="pill p1">1</span> Audit et données</td><td>Heatmap, GA4, Search Console, entretiens clients, capacités machines</td><td class="num">4–6 j</td><td>Nov.–déc. (collecte 4–6 sem.)</td></tr>
+      <tr><td><span class="pill p1">2</span> Design system et maquettes</td><td>Composants, accueil, procédé, secteur, réalisation, devis, mobile</td><td class="num">8–12 j</td><td>Déc. 2026</td></tr>
+      <tr><td><span class="pill p2">3</span> Socle technique</td><td>Next.js, Payload, base, stockage, gabarits, composants</td><td class="num">15–25 j</td><td>Janv.–févr. 2027</td></tr>
+      <tr><td><span class="pill p2">4</span> Devis et back-office</td><td>API, statuts, notifications, espace client, tableau de bord</td><td class="num">8–12 j</td><td>Févr. 2027</td></tr>
+      <tr><td><span class="pill p2">5</span> Contenus et migration</td><td>Pages nouvelles, 64 réalisations enrichies, redirections</td><td class="num">10–15 j</td><td>Févr.–mars 2027</td></tr>
+      <tr><td><span class="pill p2">6</span> Articles IA et LinkedIn</td><td>Boîte dédiée, agent, brouillons, validation, posts</td><td class="num">6–10 j</td><td>Mars 2027</td></tr>
+      <tr><td><span class="pill p2">7</span> Recette et mise en ligne</td><td>Accessibilité, performance, SEO, multi-appareils, bascule</td><td class="num">5–8 j</td><td>Fin mars 2027</td></tr>
+      <tr><td><strong>Total</strong></td><td></td><td class="num"><strong>59–93 j</strong></td><td><strong>4 à 5 mois</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Estimations pour un développeur assisté par IA, hors temps de validation interne, séances photo et rédaction des capacités par l'atelier. Le calendrier dépend surtout de la disponibilité des personnes qui valident.</p>
+</section>
+
+<section id="couts">
+  <div class="eyebrow">Après la mise en ligne</div>
+  <h2>Coûts récurrents et maintenance</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Poste</th><th>Estimation mensuelle</th></tr></thead>
+    <tbody>
+      <tr><td>Hébergement Vercel (offre Pro)</td><td class="num">≈ 20 $ par membre</td></tr>
+      <tr><td>Base Postgres UE (Neon ou Supabase)</td><td class="num">0–25 $</td></tr>
+      <tr><td>Stockage fichiers et images</td><td class="num">≈ 5 $</td></tr>
+      <tr><td>E-mails transactionnels et entrants</td><td class="num">0–20 $</td></tr>
+      <tr><td>API IA (articles, posts, alt)</td><td class="num">10–30 €</td></tr>
+      <tr><td>Domaine et mails OVH (déjà en place)</td><td class="num">inchangé</td></tr>
+      <tr><td>Microsoft Clarity, Search Console, GA4, Payload</td><td class="num">gratuit</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Prix publics indicatifs, à confirmer au moment de la souscription.</p>
+  <h3>Maintenance</h3>
+  <ul>
+    <li>Les 6 premiers mois : 2 à 4 jours par mois (corrections, ajustements après heatmap, nouvelles pages secteur).</li>
+    <li>Ensuite : 1 à 2 jours par mois (mises à jour des dépendances, sécurité, sauvegardes, évolution des règles du devis).</li>
+    <li>Revue SEO mensuelle (positions, pages en baisse, nouvelles requêtes) et bilan trimestriel des demandes.</li>
+  </ul>
+</section>
+
+<section id="ds">
+  <div class="eyebrow">Une seule source de vérité</div>
+  <h2>Design system</h2>
+  <p>Créé dans <code>site-refonte/design-system/</code>. Il reprend exactement les couleurs et polices du devis 3D, pour que le site, l'outil de devis, les articles et les visuels LinkedIn forment un tout.</p>
+  <ul>
+    <li><code>tokens.css</code> : couleurs, typographie fluide, espacements, rayons, ombres, mouvement, points de rupture.</li>
+    <li><code>DESIGN_SYSTEM.md</code> : règles d'usage des couleurs (contrastes vérifiés), typographie, grille, liste des composants, images et nommage, ton, gabarits d'articles (réalisation, procédé, secteur, guide), règles SEO / GEO et checklist accessibilité.</li>
+    <li>Les gabarits servent aussi de consigne à l'IA de rédaction : un article produit automatiquement respecte la même structure qu'un article écrit à la main.</li>
+  </ul>
+  <p>Étape suivante possible : le publier en design system navigable (aperçus des composants) et le relier à Figma pour les maquettes.</p>
+</section>
+
+<section id="plus">
+  <div class="eyebrow">Au-delà du site</div>
+  <h2>Suggestions pour l'entreprise</h2>
+  <ul>
+    <li><strong>Séance photo et vidéo pro de l'atelier</strong> : la priorité absolue pour l'image, les photos actuelles sont souvent prises au téléphone.</li>
+    <li><strong>Fiche capacités chiffrée</strong> par machine (formats, épaisseurs par matière, tolérances) : sert au site, au devis 3D et à l'assistant IA du bureau d'études.</li>
+    <li><strong>Certifications et engagements</strong> à afficher s'ils existent (ISO 9001, Qualibat, fabrication française, bilan carbone), à obtenir sinon pour les marchés publics et ferroviaires.</li>
+    <li><strong>Page recrutement</strong> : la tôlerie est un métier en tension, le site peut aussi attirer des soudeurs et plieurs.</li>
+    <li><strong>Newsletter trimestrielle</strong> aux clients et prospects : nouvelles réalisations, nouvelles machines, nouveautés du devis.</li>
+    <li><strong>Version anglaise</strong> des pages clés dans un second temps, pour les clients export et les intégrateurs étrangers.</li>
+    <li><strong>Hub de marques</strong> : présenter clairement le groupe (Rémond, Meuble Métal, Banque d'Accueil, ZHED, BOMUUR) et partager le même design system de base.</li>
+    <li><strong>Mesure du tunnel</strong> : demandes, devis, commandes, valeur et récurrence par source, comme le recommande le benchmark.</li>
+  </ul>
+</section>
+
+<section id="missions">
+  <div class="eyebrow">Feuille de route personnelle</div>
+  <h2>Mes missions</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Mission</th><th>Livrable suivant</th><th>Priorité</th></tr></thead>
+    <tbody>
+      <tr><td>Corrections urgentes du site actuel</td><td>Mentions légales, consentement, sécurité, 404, Clarity</td><td><span class="pill p0">Maintenant</span></td></tr>
+      <tr><td>Devis instantané 3D (en cours)</td><td>Branchement à la base et au back-office, intégration au site</td><td><span class="pill p0">Haute</span></td></tr>
+      <tr><td>03 · Refonte DA, UX/UI et sites</td><td>Design system validé, maquettes accueil + gabarits, puis développement</td><td><span class="pill p0">Haute</span></td></tr>
+      <tr><td>05 · SEO et GEO</td><td>Corrections rapides sur WordPress, puis fondations du nouveau site, guides</td><td><span class="pill p1">Haute</span></td></tr>
+      <tr><td>Automatisation des articles</td><td>Pipeline e-mail → brouillon → validation → LinkedIn</td><td><span class="pill p1">Moyenne</span></td></tr>
+      <tr><td>04 · Communication des marques</td><td>Ligne éditoriale, 5 à 10 gabarits LinkedIn, calendrier</td><td><span class="pill p1">Moyenne</span></td></tr>
+      <tr><td>01 · Assistant IA bureau d'études</td><td>Audit métier et référentiel atelier (partagé avec la fiche capacités)</td><td><span class="pill p2">Ensuite</span></td></tr>
+      <tr><td>02 · Plateforme de conception IA</td><td>S'appuie sur le devis 3D et le back-office une fois en place</td><td><span class="pill p2">Ensuite</span></td></tr>
+      <tr><td>Refonte des autres sites du groupe</td><td>Réutiliser le socle et le design system (ZHED en premier selon la présentation)</td><td><span class="pill p2">Ensuite</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="decisions">
+  <div class="eyebrow">Pour avancer</div>
+  <h2>À fournir et à décider</h2>
+  <h3>Accès et informations</h3>
+  <ul>
+    <li>Accès Google Analytics 4, Search Console, Google Ads, Google Business Profile, page LinkedIn.</li>
+    <li>Accès OVH (DNS, hébergement) et administrateur WordPress, pour les urgences et la sauvegarde.</li>
+    <li>Informations légales (SIRET, directeur de publication) pour les mentions légales.</li>
+    <li>Capacités machines, certifications, chiffres clés, logos clients autorisés.</li>
+  </ul>
+  <h3>Décisions</h3>
+  <ul>
+    <li>Délai de réponse promis : 48 h ou 24 à 72 h ?</li>
+    <li>Choix de l'hébergement : Vercel (recommandé) ou OVH.</li>
+    <li>Qui valide les articles avant publication, et sous quel délai.</li>
+    <li>Promesse centrale proposée par le benchmark : « Votre partenaire de tôlerie fine, de l'étude au produit métallique prêt à intégrer ».</li>
+    <li>Budget séance photo / vidéo et calendrier de mise en ligne (cible : fin mars 2027).</li>
+  </ul>
+</section>
+</main>
+</div>
+
+<footer><div class="wrap">Tôlerie Rémond · Crépand (Côte-d'Or) · Document de travail interne, version du 6 novembre 2026. Fichiers sources : <code>site-refonte/</code> (design system, inventaire des URL).</div></footer>

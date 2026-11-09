@@ -1,0 +1,431 @@
+/* Carte devis « téléphone pliant » : fermée, on voit l'écran extérieur (charnière à droite).
+   En s'ouvrant, le feuillet droit pivote vers nous et se pose à droite : le plan à gauche, le devis à droite.
+   1 px design = --u ; carte ouverte 860 × 600 + rail de quantités à droite. */
+.scene {
+  --u: min(1px, calc((100vw - 48px - 270px) / 885), calc((100svh - 190px) / 640));
+  --half-w: calc(430 * var(--u));
+  --card-h: calc(600 * var(--u));
+  --radius-outer: calc(30 * var(--u));
+  --radius-hinge: calc(6 * var(--u));
+  --perspective: calc(1900 * var(--u));
+  --blur-max: calc(24 * var(--u));
+  --pad: calc(32 * var(--u));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 100%;
+  opacity: 0;
+}
+
+.cardWrap {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--half-w) * 2);
+  height: var(--card-h);
+  perspective: var(--perspective);
+}
+
+.card {
+  --turn: -180deg;
+  --spread: 0;
+  --blur-cover: 0;
+  --shade: 0;
+  --hinge-k: 1;
+  position: relative;
+  width: calc(var(--half-w) * (1 + var(--spread)));
+  height: var(--card-h);
+  transform-style: preserve-3d;
+  font-size: calc(15 * var(--u));
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  backface-visibility: hidden;
+  box-shadow: 0 calc(24 * var(--u)) calc(60 * var(--u)) rgba(17, 45, 99, 0.16);
+}
+
+/* Feuillet gauche, fixe : charnière sur son bord droit */
+.left {
+  right: auto;
+  width: var(--half-w);
+  border-radius: var(--radius-outer) calc(var(--radius-hinge) * var(--hinge-k)) calc(var(--radius-hinge) * var(--hinge-k)) var(--radius-outer);
+  background: #0a1a3c;
+  color: #fff;
+  will-change: transform;
+}
+.card[data-state='folded'] .left { visibility: hidden; }
+
+/* Feuillet droit, mobile : replié à −180° sur le gauche, posé à 0° à droite */
+.flap {
+  position: absolute;
+  top: 0;
+  left: var(--half-w);
+  width: var(--half-w);
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--turn));
+  will-change: transform;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Blueprint 3D manipulable, superposé à l'image une fois la carte ouverte */
+.live {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #1b3f7d, #0a1a3c);
+  animation: liveIn 0.45s ease both;
+}
+@keyframes liveIn { from { opacity: 0; } }
+
+.insideTitle {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  font: 700 calc(26 * var(--u)) / 1.15 var(--font-title);
+  pointer-events: none;
+}
+.insideTitle small, .coverTitle small {
+  display: block;
+  margin-top: calc(6 * var(--u));
+  font: 500 calc(13 * var(--u)) / 1.3 var(--font-body);
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.specList {
+  position: absolute;
+  left: var(--pad);
+  bottom: calc(var(--pad) + 46 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(6 * var(--u));
+  font-size: calc(13 * var(--u));
+  pointer-events: none;
+}
+.specList > span { display: flex; gap: calc(10 * var(--u)); }
+.specList b {
+  width: calc(78 * var(--u));
+  font-weight: 500;
+  font-size: calc(11 * var(--u));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  padding-top: calc(1 * var(--u));
+}
+
+.leafActions {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: calc(var(--pad) - 6 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(12 * var(--u));
+}
+.dragHint { flex: 1; font-size: calc(11 * var(--u)); color: rgba(255, 255, 255, 0.5); text-align: center; pointer-events: none; }
+.open3d {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  padding: calc(9 * var(--u)) calc(16 * var(--u));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: calc(13 * var(--u));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.open3d:hover { background: var(--accent); border-color: var(--accent); }
+
+/* Statistiques en verre */
+.stats {
+  position: absolute;
+  top: var(--pad);
+  right: var(--pad);
+  display: flex;
+  flex-direction: column;
+  gap: calc(14 * var(--u));
+  pointer-events: none;
+}
+.stat {
+  --reveal: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(5 * var(--u));
+  width: calc(72 * var(--u));
+  transform: translateY(calc((1 - var(--reveal)) * 8 * var(--u)));
+}
+.circle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(58 * var(--u));
+  height: calc(58 * var(--u));
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(calc(3 * var(--u))) saturate(1.8);
+  font: 700 calc(17 * var(--u)) / 1 var(--font-title);
+  opacity: var(--reveal);
+  transform: scale(calc(0.9 + 0.1 * var(--reveal)));
+}
+.circle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 35%, rgba(255, 255, 255, 0.12) 65%, rgba(255, 255, 255, 0.3) 100%);
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.statLabel { opacity: var(--reveal); white-space: pre; text-align: center; font-size: calc(11 * var(--u)); line-height: 1.2; }
+
+/* ---------- Écran extérieur (couverture) : charnière à droite, coins serrés de ce côté ---------- */
+.cover {
+  transform: rotateY(180deg);
+  border: 0;
+  padding: 0;
+  border-radius: var(--radius-outer) var(--radius-hinge) var(--radius-hinge) var(--radius-outer);
+  background: var(--navy);
+  color: #fff;
+  text-align: left;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cover:active { cursor: grabbing; }
+.cover:focus-visible { outline: 2px solid var(--navy); outline-offset: calc(8 * var(--u)); }
+.coverShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 45, 99, 0.55) 0%, rgba(17, 45, 99, 0) 32%, rgba(17, 45, 99, 0) 55%, rgba(10, 26, 60, 0.85) 100%);
+}
+.coverLogo { position: absolute; top: var(--pad); right: var(--pad); width: calc(120 * var(--u)); }
+.coverTitle { position: absolute; top: var(--pad); left: var(--pad); font: 700 calc(30 * var(--u)) / 1.1 var(--font-title); }
+.coverBody { position: absolute; left: var(--pad); right: var(--pad); bottom: var(--pad); font-size: calc(16 * var(--u)); line-height: 1.4; }
+.coverBody em {
+  display: inline-block;
+  margin-top: calc(14 * var(--u));
+  padding: calc(7 * var(--u)) calc(14 * var(--u));
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-style: normal;
+  font-size: calc(13 * var(--u));
+}
+
+/* ---------- Flou progressif ---------- */
+.pb, .pb > span { position: absolute; inset: 0; display: block; }
+.pbSoft, .pbHard { pointer-events: none; opacity: min(1, calc(var(--k) * 4)); }
+.pbSoft { filter: blur(calc(var(--blur-max) * var(--k) * 0.4)); }
+.pbHard { filter: blur(calc(var(--blur-max) * var(--k))); }
+/* Le bord libre de la couverture est à gauche : c'est lui qui se floute en se soulevant */
+.pbSoft { mask-image: linear-gradient(to left, transparent 20%, #000 55%); }
+.pbHard { mask-image: linear-gradient(to left, transparent 45%, #000 90%); }
+
+/* ---------- Écran droit : le devis ---------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--pad) + 2 * var(--u)) var(--pad) 0;
+  border-radius: calc(var(--radius-hinge) * var(--hinge-k)) var(--radius-outer) var(--radius-outer) calc(var(--radius-hinge) * var(--hinge-k));
+  background: #fff;
+  color: var(--text);
+}
+/* Ombre du pli : plus sombre côté charnière tant que le feuillet est incliné */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(10, 26, 60, 0.45), rgba(10, 26, 60, 0.08) 70%);
+  opacity: calc(var(--shade) * 0.8);
+}
+
+.paperHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(16 * var(--u));
+  padding-bottom: calc(18 * var(--u));
+  border-bottom: 1px solid var(--line);
+}
+.logo { height: calc(40 * var(--u)); width: auto; }
+.paperHead div { text-align: right; }
+.paperHead h2 { font-size: calc(19 * var(--u)); color: var(--navy); }
+.paperHead p { margin: calc(2 * var(--u)) 0 0; font-size: calc(12 * var(--u)); color: var(--text-soft); }
+
+.notice {
+  display: flex;
+  gap: calc(8 * var(--u));
+  margin: calc(16 * var(--u)) 0 calc(4 * var(--u));
+  font-size: calc(12 * var(--u));
+  line-height: 1.4;
+  color: var(--warn);
+}
+.notice svg { flex: none; margin-top: calc(1 * var(--u)); width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
+
+/* Seule cette liste défile, jamais la page */
+.lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0 calc(4 * var(--u)) 0 0;
+  list-style: none;
+  scrollbar-width: thin;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+}
+.lines li {
+  --reveal: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(24 * var(--u));
+  padding: calc(16 * var(--u)) 0;
+  border-bottom: 1px solid #f0f2f6;
+  opacity: var(--reveal);
+  transform: translateY(calc((1 - var(--reveal)) * 10 * var(--u)));
+}
+.lines li:last-child { border-bottom: 0; margin-bottom: calc(24 * var(--u)); }
+.lineText { display: flex; flex-direction: column; gap: calc(3 * var(--u)); min-width: 0; }
+.lineText b { font-weight: 500; font-size: calc(15 * var(--u)); color: var(--navy); }
+.lineText small { font-size: calc(12.5 * var(--u)); color: var(--text-soft); }
+.amount { flex: none; font-size: calc(13.5 * var(--u)); font-weight: 400; color: #8a93a3; font-variant-numeric: tabular-nums; }
+
+/* Prix unitaire en vedette, toujours en bas à droite */
+.total {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: calc(16 * var(--u));
+  margin: 0 calc(-1 * var(--pad));
+  padding: calc(18 * var(--u)) var(--pad) calc(24 * var(--u));
+  background: var(--navy);
+  color: #fff;
+}
+.totalLeft { display: flex; flex-direction: column; gap: calc(4 * var(--u)); font-size: calc(12 * var(--u)); opacity: 0.75; font-variant-numeric: tabular-nums; }
+.unit { display: flex; flex-direction: column; align-items: flex-end; }
+.unit small { font-size: calc(11 * var(--u)); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-bright); }
+.unit strong { font: 700 calc(32 * var(--u)) / 1.05 var(--font-title); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.unit em { font-style: normal; font-size: calc(13 * var(--u)); font-weight: 500; opacity: 0.75; }
+
+/* ---------- Poignées sur le bord libre ---------- */
+.grip {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 76px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(17, 45, 99, 0.25);
+  cursor: ew-resize;
+  touch-action: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(0, -50%) translateZ(2px);
+  transition: opacity 0.25s ease;
+}
+.grip span { width: 4px; height: 30px; border-radius: 2px; background: repeating-linear-gradient(var(--grey) 0 4px, transparent 4px 8px); }
+.grip:hover { box-shadow: 0 0 0 3px rgba(0, 162, 163, 0.25), 0 4px 16px rgba(17, 45, 99, 0.25); }
+/* Fermé : sur le bord gauche (libre) de la couverture, à tirer vers la droite */
+.gripOpen { left: -11px; }
+.card[data-state='folded'] .gripOpen { opacity: 1; pointer-events: auto; }
+/* Ouvert : sur le bord droit (libre) du devis, à tirer vers la gauche */
+.gripClose { right: -11px; }
+.card[data-state='open'] .gripClose { opacity: 1; pointer-events: auto; }
+
+/* ---------- Rail des quantités (hors carte, à droite) ---------- */
+.rail {
+  flex: none;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  transform: translateX(16px);
+  pointer-events: none;
+  transition: opacity 0.5s ease 1.4s, transform 0.6s var(--ease-out) 1.4s;
+}
+.railOn { opacity: 1; transform: none; pointer-events: auto; }
+.rail h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.railHint { margin: -4px 0 4px; font-size: 12px; color: var(--text-soft); line-height: 1.4; }
+.tier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(17, 45, 99, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.tier:hover { border-color: #c7d3e3; transform: translateX(-2px); }
+.tierOn, .tierOn:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 162, 163, 0.15); }
+.tierQty { font-size: 12.5px; color: var(--text-soft); }
+.tierPrice { font: 700 19px/1.2 var(--font-title); color: var(--navy); font-variant-numeric: tabular-nums; }
+.tierPrice small { font: 400 12px var(--font-body); color: var(--text-soft); }
+.tierSave { position: absolute; top: 12px; right: 12px; padding: 2px 8px; border-radius: 999px; background: #e6f7f7; color: #00797a; font-size: 11px; font-weight: 700; }
+.custom { cursor: text; }
+.customRow { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-soft); }
+.customRow input {
+  width: 80px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  font: 600 15px var(--font-body);
+  color: var(--navy);
+  outline: none;
+}
+.customRow input:focus { border-color: var(--accent); background: #fff; }
+
+/* ---------- Téléphone : écrans empilés, sans rotation ---------- */
+@media (width < 760px) {
+  .scene { --u: 1px; --half-w: calc(100vw - 32px); --pad: 20px; flex-direction: column; height: auto; padding: 8px 0 24px; gap: 16px; }
+  .cardWrap { width: var(--half-w); height: auto; perspective: none; display: block; }
+  .card { width: 100%; height: auto; display: flex; flex-direction: column; gap: 12px; transform-style: flat; }
+  .left, .flap { position: relative; inset: auto; left: auto; width: 100%; transform: none; }
+  .left { height: 360px; }
+  .card[data-state='folded'] .left { visibility: visible; }
+  .flap { height: min(560px, 80svh); }
+  .cover, .grip, .shade { display: none; }
+  .face { border-radius: var(--radius-outer) !important; }
+  .specList { display: none; }
+  /* Statistiques en ligne sous le titre : rien ne chevauche le bouton « Voir en 3D » */
+  .stats { top: calc(var(--pad) + 64px); left: var(--pad); right: auto; flex-direction: row; gap: 14px; }
+  .stat { flex-direction: row; width: auto; gap: 6px; }
+  .circle { width: 40px; height: 40px; font-size: 14px; }
+  .statLabel { white-space: normal; text-align: left; max-width: 64px; }
+  .dragHint { text-align: left; }
+  .rail { width: var(--half-w); display: grid; grid-template-columns: 1fr 1fr; transition-delay: 0s; }
+  .rail h3, .railHint, .custom { grid-column: 1 / -1; }
+}

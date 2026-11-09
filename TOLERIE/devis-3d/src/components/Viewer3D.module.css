@@ -1,0 +1,149 @@
+.viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.canvas,
+.canvas canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.labels {
+  position: absolute;
+  inset: 0;
+  /* Masquées tant que la boucle 3D ne les a pas placées (sinon elles s'affichent un instant en haut à gauche). */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font: 600 12px/1.2 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 70, 80, 0.25);
+}
+
+.blueprint .label {
+  padding: 2px 6px;
+  background: rgba(10, 26, 60, 0.55);
+  border: 1px solid rgba(0, 219, 220, 0.7);
+  color: #d9fbff;
+  font-size: 11px;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+/* Cotes modifiables au clic */
+.labels[data-on='1'] .editable { pointer-events: auto; }
+.editable { padding: 0; }
+.editable button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: text;
+}
+.editable button svg { opacity: 0.7; }
+.editable:hover { background: var(--navy); }
+.editing { background: #fff; color: var(--navy); box-shadow: 0 0 0 2px var(--accent), 0 6px 18px rgba(17, 45, 99, 0.2); }
+.editRow { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 6px; }
+.editRow label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text-soft);
+  font: 500 12px var(--font-body);
+}
+.editRow label:focus-within { background: #e6f7f7; color: var(--navy); }
+.editRow input {
+  min-width: 2.5ch;
+  border: 0;
+  outline: none;
+  background: none;
+  padding: 2px 0;
+  font: 700 14px var(--font-body);
+  color: var(--navy);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.editRow .invalid { background: #fde8e8; color: #c53030; box-shadow: 0 0 0 1.5px #d64545; animation: shake 0.3s; }
+@keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.remove {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: #fde8e8;
+  color: #c53030;
+  cursor: pointer;
+}
+.holeLabel { background: var(--navy); }
+.blueprint .holeLabel { background: rgba(10, 26, 60, 0.55); }
+
+.markers { position: absolute; inset: 0; pointer-events: none; }
+.marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font: 700 11px var(--font-body);
+  box-shadow: 0 0 0 4px rgba(0, 162, 163, 0.25), 0 2px 6px rgba(0, 0, 0, 0.25);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(0, 162, 163, 0.1), 0 2px 6px rgba(0, 0, 0, 0.25); } }
+
+/* Champs X / Y : la lettre en orange, comme le repère dessiné sur la pièce */
+.axisField > span:first-child { color: #ff7a00; font-weight: 700; }
+.axisField:hover { box-shadow: 0 0 0 1.5px #ff7a00; }
+.markerDrag { pointer-events: auto; cursor: grab; touch-action: none; width: 24px; height: 24px; }
+.markerDrag:active { cursor: grabbing; background: var(--navy); }
+.tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 3px 9px;
+  border: 1px dashed #5b6475;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--navy);
+  font: 600 12px var(--font-body);
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.tag:hover { border-style: solid; border-color: var(--accent); background: #e6f7f7; }
+.tag_add { padding: 2px 7px; border-color: var(--accent); color: var(--accent); font-size: 11px; }
+.tag_on { border-style: solid; border-color: var(--navy); }
+.tag_sel { border-style: solid; border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(0, 162, 163, 0.22); }
+.tag_sel:hover { background: var(--accent); }

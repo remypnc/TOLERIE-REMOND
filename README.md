@@ -1,6 +1,7 @@
 # Tôlerie Rémond
 
 - `TOLERIE/devis-3d/` : devis en ligne 3D (React + Vite), assistant IA, back-office. Voir son README.
+- `CLAUDE.md` : règles pour les agents. `CONTRIBUTING.md` : branches et pull requests.
 - `TOLERIE/site-refonte/` : plan de refonte du site tolerie-remond.com (WordPress → nouveau site).
 
 ## Mise en ligne (Vercel)

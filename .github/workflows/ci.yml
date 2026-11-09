@@ -1,0 +1,26 @@
+# Vérifications automatiques de chaque pull request (et de main) : tests 3D, lint, build, fonctions Vercel à jour.
+name: Vérifications
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  devis-3d:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TOLERIE/devis-3d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: TOLERIE/devis-3d/package-lock.json
+      - run: npm ci
+      - name: Tests (produits 3D et conversations)
+        run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - name: Fonctions Vercel à jour (api/*.js régénérés)
+        run: npm run build:api && git diff --exit-code -- api/

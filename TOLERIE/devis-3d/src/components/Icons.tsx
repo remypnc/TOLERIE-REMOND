@@ -43,7 +43,7 @@ export function ViewCubeIcon({ view }: { view: ViewName }) {
 
 type IconName =
   | 'ruler' | 'unfold' | 'zoomIn' | 'zoomOut' | 'send' | 'clip' | 'expand' | 'collapse' | 'back' | 'check'
-  | 'eye' | 'layers' | 'cut' | 'trash' | 'pencil' | 'swap' | 'undo' | 'cursor' | 'drill' | 'bend' | 'resize' | 'palette' | 'note' | 'close' | 'warn' | 'cube' | 'sparkle' | 'drag' | 'round' | 'user' | 'mail' | 'phone' | 'plus' | 'mic' | 'download' | 'nut' | 'section' | 'power' | 'door' | 'image';
+  | 'eye' | 'layers' | 'cut' | 'trash' | 'pencil' | 'swap' | 'undo' | 'cursor' | 'drill' | 'bend' | 'resize' | 'palette' | 'note' | 'close' | 'warn' | 'cube' | 'sparkle' | 'drag' | 'save' | 'round' | 'user' | 'mail' | 'phone' | 'plus' | 'mic' | 'download' | 'nut' | 'section' | 'power' | 'door' | 'image';
 
 const PATHS: Record<IconName, string> = {
   ruler: 'M3 17 17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2',
@@ -85,6 +85,7 @@ const PATHS: Record<IconName, string> = {
   power: 'M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0',
   door: 'M5 21V4l9-1v18M14 3h5v18h-5M11 12h.01',
   image: 'M4 5h16v14H4zM8.5 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM20 15l-5-5-9 9',
+  save: 'M6 3h12v18l-6-4-6 4z',
   drag: 'M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01',
 };
 

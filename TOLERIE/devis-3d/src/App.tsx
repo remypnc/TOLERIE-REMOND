@@ -21,6 +21,7 @@ import { FacePanel, ProductPanel } from './components/SelectPanel';
 import { Viewer3D, type Measure, type LabelKey, type PartEdit, type PickEvent, type Section, type Tag, type ViewerHandle, type ViewName } from './components/Viewer3D';
 import { ChatDock, Bubble, Choices, Composer, Typing, filesToAttachments, type ComposerContext, type Step } from './components/Chat';
 import { droppedFiles, hasFiles } from './lib/dropFiles';
+import { deleteSaved, listSaved, saveQuote, type SavedQuote } from './lib/savedQuotes';
 import { FlatPanel } from './components/FlatPanel';
 import { QuoteCard, type QuoteCardHandle } from './components/QuoteCard';
 import { ContactModal } from './components/ContactModal';
@@ -369,6 +370,8 @@ export default function App() {
         thumbnail,
       });
       setSent(result);
+      // Envoyé : le brouillon enregistré n'a plus lieu d'être.
+      setSaved(deleteSaved(reference));
       setReference(result.order.reference);
       setContactFor(null);
       setStage('sent');
@@ -504,6 +507,49 @@ export default function App() {
     ]);
     goPreview();
   };
+  // --- Devis enregistrés sans envoi (dans ce navigateur) ------------------------------------
+  const [saved, setSaved] = useState<SavedQuote[]>(listSaved);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [savedNote, setSavedNote] = useState<string>();
+  useEffect(() => {
+    if (!savedNote) return;
+    const id = window.setTimeout(() => setSavedNote(undefined), 4500);
+    return () => window.clearTimeout(id);
+  }, [savedNote]);
+  const saveCurrent = () => {
+    const ok = saveQuote({
+      reference,
+      savedAt: new Date().toISOString(),
+      spec,
+      answered,
+      messages,
+      unitPrice: quote.unitPrice,
+      subtotal: quote.subtotal,
+      thumbnail: renderSnapshot(spec, 'day', 160, 120, 1),
+    });
+    setSaved(listSaved());
+    setSavedNote(ok
+      ? `Devis ${reference} enregistré sur cet appareil, sans envoi à l’atelier. Retrouvez-le dans « Mes devis ».`
+      : 'Impossible d’enregistrer : le stockage de ce navigateur est plein ou désactivé.');
+  };
+  /** Reprend un devis enregistré : même référence, conversation et pièce restaurées, retour à l'étape devis. */
+  const openSaved = (q: SavedQuote) => {
+    setSavedOpen(false);
+    setStarted(true);
+    past.current = [];
+    setCanUndo(false);
+    specRef.current = q.spec;
+    setSpecRaw(q.spec);
+    setAnswered(q.answered);
+    setReference(q.reference);
+    resetVersions(q.spec, `Devis enregistré (${q.reference})`);
+    setEditingRef(null);
+    setMessages([...q.messages, msg('assistant', `Devis ${q.reference} repris tel que vous l’aviez enregistré. Modifiez-le ou envoyez-le quand vous voulez.`)]);
+    setTool(null);
+    setFlatOn(false);
+    goQuote();
+  };
+  const removeSaved = (reference: string) => setSaved(deleteSaved(reference));
   const logout = () => {
     void backend.logout();
     saveClient(null);
@@ -966,6 +1012,33 @@ export default function App() {
                 <Icon name={stage === 'admin' ? 'back' : 'layers'} size={18} /><span>{stage === 'admin' ? 'Retour au devis' : 'Atelier'}</span>
               </button>
             )}
+            {saved.length > 0 && (
+              <div className={styles.savedWrap}>
+                <button type="button" className={`${styles.accountBtn} ${savedOpen ? styles.editOn : ''}`} onClick={() => setSavedOpen((o) => !o)} aria-expanded={savedOpen} title="Devis enregistrés sur cet appareil">
+                  <Icon name="save" size={18} /><span>Mes devis ({saved.length})</span>
+                </button>
+                {savedOpen && (
+                  <div className={styles.savedMenu} role="menu">
+                    <p>Enregistrés sur cet appareil, non envoyés à l’atelier.</p>
+                    {saved.map((q) => (
+                      <div key={q.reference} className={styles.savedItem}>
+                        <button type="button" role="menuitem" onClick={() => openSaved(q)}>
+                          {q.thumbnail ? <img src={q.thumbnail} alt="" /> : <span className={styles.savedThumb}><Icon name="cube" size={20} /></span>}
+                          <span>
+                            <b>{q.spec.name}</b>
+                            <small>{q.reference} · {new Date(q.savedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small>
+                            <small>{q.spec.quantity} pc · {eur(q.unitPrice)} HT / pc</small>
+                          </span>
+                        </button>
+                        <button type="button" className={styles.savedDel} onClick={() => removeSaved(q.reference)} title="Supprimer ce devis enregistré" aria-label={`Supprimer ${q.reference}`}>
+                          <Icon name="trash" size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <button type="button" className={styles.accountBtn} onClick={goAccount} title={account ? `Mes pièces · ${account.email}` : 'Retrouver mes pièces et leur suivi'}>
               {account ? <b>{(account.name || account.company || account.email).trim()[0]?.toUpperCase()}</b> : <Icon name="user" size={18} />}
               <span>{account ? 'Mes pièces' : 'Mon espace'}</span>
@@ -1250,6 +1323,11 @@ export default function App() {
             <button type="button" className={styles.ghostBtn} onClick={() => void quoteCard.current?.close().then(goPreview)}>
               <Icon name="back" size={18} /> <span>Revoir la pièce et les détails</span>
             </button>
+            {!editingRef && (
+              <button type="button" className={`${styles.ghostBtn} ${styles.saveBtn}`} onClick={saveCurrent} title="Garder ce devis sur cet appareil sans l’envoyer à l’atelier">
+                <Icon name="save" size={18} /> <span>Enregistrer le devis</span>
+              </button>
+            )}
             <button type="button" className={styles.primaryBtn} onClick={() => setContactFor('send')} disabled={sending}>
               <span>{editingRef ? 'Envoyer la modification' : 'Valider et envoyer en production'}</span> <Icon name="send" size={18} />
             </button>
@@ -1257,6 +1335,8 @@ export default function App() {
         </>
       )}
 
+
+      {savedNote && <div className={styles.savedToast} role="status">{savedNote}</div>}
 
       {stage === 'admin' && account && <AdminPage me={account} onOpenInEditor={editAsAtelier} />}
 

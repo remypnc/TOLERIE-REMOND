@@ -6,8 +6,8 @@
 
 | Adresse | Contenu | Hébergement |
 |---|---|---|
-| `tolerie-remond.fr` (ou `.com`, le domaine principal actuel) | Site vitrine refait (fin de WordPress) | **OVH** (hébergement web actuel), fichiers statiques |
-| `devis.tolerie-remond.fr` | Devis en ligne 3D (ce dépôt, `TOLERIE/devis-3d`) | **Vercel**, fonctions en région **Paris (`cdg1`)** |
+| `tolerie-remond.com` | Site vitrine refait (fin de WordPress) | **OVH** (hébergement web actuel), fichiers statiques |
+| `devis.tolerie-remond.com` | Devis en ligne 3D (ce dépôt, `TOLERIE/devis-3d`) | **Vercel**, fonctions en région **Paris (`cdg1`)** |
 | plus tard : serveur de l'atelier | Comptes clients, demandes, e-mails, back-office, fichiers joints | Hébergeur **français** (voir § 4) |
 
 Le nom de domaine reste chez OVH : seul un enregistrement DNS `devis` pointe vers Vercel. Le site principal
@@ -15,12 +15,12 @@ n'est pas touché par la mise en ligne du devis.
 
 ## 2. Brancher `devis.` sur Vercel (15 minutes, sans coupure)
 
-1. Vercel → projet → **Settings → Domains** → ajouter `devis.tolerie-remond.fr`.
-2. OVH → **Web Cloud → Noms de domaine → tolerie-remond.fr → Zone DNS** → ajouter un enregistrement
+1. Vercel → projet → **Settings → Domains** → ajouter `devis.tolerie-remond.com`.
+2. OVH → **Web Cloud → Noms de domaine → tolerie-remond.com → Zone DNS** → ajouter un enregistrement
    **CNAME** : sous-domaine `devis`, cible = la valeur affichée par Vercel (en général `cname.vercel-dns.com.`).
 3. Attendre la propagation (quelques minutes à quelques heures) : Vercel crée le certificat HTTPS tout seul.
-4. Sur le site actuel, mettre le bouton « Devis en ligne » vers `https://devis.tolerie-remond.fr`.
-5. Captcha (§ 5) : ajouter `devis.tolerie-remond.fr` aux domaines autorisés du widget.
+4. Sur le site actuel, mettre le bouton « Devis en ligne » vers `https://devis.tolerie-remond.com`.
+5. Captcha (§ 5) : ajouter `devis.tolerie-remond.com` aux domaines autorisés du widget.
 
 ## 3. Passer sur le GitHub et le Vercel de l'entreprise
 
@@ -67,8 +67,9 @@ confidentialité du site doit le mentionner (traitement par un sous-traitant, pa
 Cloudflare **Turnstile** : gratuit, sans cookie publicitaire, invisible pour la plupart des visiteurs. Il protège
 l'assistant IA, la seule partie qui coûte de l'argent à chaque appel. Pas besoin de déplacer le DNS chez Cloudflare.
 
-1. Créer un compte gratuit sur dash.cloudflare.com → **Turnstile → Add widget**.
-2. Domaines : `tolerie-remond-devis-3d.vercel.app`, `devis.tolerie-remond.fr` (et `localhost` pour les tests).
+1. Créer un compte gratuit sur dash.cloudflare.com, puis dans le menu de gauche **Turnstile → Add widget**.
+   Turnstile n'a **pas besoin de GitHub** : ne pas créer de projet « Pages » ou « Workers ».
+2. Domaines : `tolerie-remond-devis-3d.vercel.app`, `devis.tolerie-remond.com` (et `localhost` pour les tests).
    Mode : **Managed**.
 3. Copier les deux clés dans Vercel (§ 6), puis **Redeploy**.
 
@@ -100,8 +101,25 @@ React. Ni WordPress, ni une application React « pure ».
 | Même design que le devis | Oui : mêmes couleurs, polices, composants React réutilisables | Oui | Thème à reproduire à part |
 | Modifier les textes sans développeur | Avec un petit éditeur en ligne (Keystatic ou Decap CMS) | Non | Oui, c'est son point fort |
 
-WordPress ne reste préférable que si plusieurs personnes non techniques publient très souvent (actualités
-chaque semaine, extensions spécifiques). Pour un site vitrine de tôlerie (savoir-faire, machines,
+**Les articles SEO / GEO publiés chaque jour sur WordPress** ne sont pas un obstacle. Deux façons de les garder :
+
+- **A. WordPress devient une simple base d'articles** (« headless ») sur un sous-domaine caché, par exemple
+  `articles.tolerie-remond.com`. L'outil qui publie aujourd'hui continue exactement pareil. Le nouveau site lit
+  les articles et les republie sur `tolerie-remond.com/blog/…` (même design, pages statiques), avec une mise à jour
+  automatique à chaque publication (webhook) ou plusieurs fois par jour. **Conseillé pour démarrer : rien à
+  changer dans la chaîne de publication.**
+- **B. Les articles arrivent directement dans le dépôt** (un fichier Markdown par article) : plus de WordPress du
+  tout, mais l'outil qui rédige les articles doit savoir publier sur GitHub.
+
+Dans les deux cas, les adresses actuelles des articles sont conservées ou redirigées en 301 pour garder le
+référencement acquis.
+
+Animations : Astro accepte sans limite **three.js** (pièces 3D, tôles qui se plient), **GSAP + ScrollTrigger**
+(animations au défilement), des blocs de code, des vidéos. Elles ne sont chargées que sur les pages qui en ont
+besoin, ce qui garde le site rapide.
+
+WordPress complet ne reste préférable que si plusieurs personnes non techniques mettent en page elles-mêmes
+des pages entières (pas seulement des articles). Pour un site vitrine de tôlerie (savoir-faire, machines,
 réalisations, contact, devis), Astro avec un éditeur léger donne un site plus rapide, mieux référencé,
 sans maintenance, et cohérent avec le devis 3D.
 
@@ -111,3 +129,24 @@ Déroulé proposé (branches `site/…`, dossier `TOLERIE/site/`, une PR par ét
    les **redirections 301** des anciennes adresses WordPress pour ne pas perdre le référencement.
 3. Mentions légales, confidentialité, cookies (`site-refonte/urgences/`).
 4. Publication sur OVH (dépôt automatique des fichiers par GitHub Actions), bascule du domaine, contrôle Search Console.
+
+## 8. Ce que l'entreprise doit posséder pour « avoir la main sur tout »
+
+Règle : chaque compte est créé avec une **adresse de l'entreprise** (ex. `web@tolerie-remond.com`, pas une adresse
+personnelle), a **deux administrateurs** (Rémy + un dirigeant), la **double authentification**, et la facturation
+au nom de l'entreprise (SIRET, TVA). Les mots de passe vont dans un gestionnaire partagé (Bitwarden, 1Password).
+
+| Service | À transférer / créer au nom de l'entreprise | Pourquoi |
+|---|---|---|
+| **GitHub** | Organisation `tolerie-remond` propriétaire du dépôt (§ 3) | Le code et son historique |
+| **Vercel** | Équipe Pro de l'entreprise, projet transféré, domaine `devis.` | La mise en ligne du devis |
+| **Anthropic (Console Claude)** | Organisation de l'entreprise (aujourd'hui « Rémy's Individual Org »), moyen de paiement de l'entreprise, nouvelle clé API, limite de dépense | La facture de l'IA et les clés |
+| **Cloudflare** | Compte Turnstile | Le captcha |
+| **OVH** | Vérifier que le compte (identifiant NIC) qui détient `tolerie-remond.com` et l'hébergement est bien celui de l'entreprise | Le nom de domaine : le plus important de tous |
+| **Hébergeur du futur serveur** (Clever Cloud…) | Compte de l'entreprise | Données clients |
+| **Envoi d'e-mails** (SMTP ou Brevo…) | Compte de l'entreprise, domaine authentifié (SPF, DKIM) | E-mails de devis et de connexion |
+| **Google Search Console, Analytics** | Propriétaire = compte de l'entreprise | Référencement, statistiques |
+| **Outil qui publie les articles SEO** | Accès et facturation de l'entreprise | La production d'articles |
+
+Côté juridique : prévoir par écrit que le code, les textes et les visuels produits appartiennent à l'entreprise
+(cession de droits si une partie est réalisée par un prestataire ou à titre personnel).

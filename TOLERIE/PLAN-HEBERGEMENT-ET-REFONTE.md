@@ -15,6 +15,9 @@ n'est pas touché par la mise en ligne du devis.
 
 ## 2. Brancher `devis.` sur Vercel (15 minutes, sans coupure)
 
+Un sous-domaine **ne s'achète pas** : il se crée gratuitement dans la zone DNS de `tolerie-remond.com`, que
+l'entreprise possède déjà (c'est l'adresse du site actuel). Il faut juste l'accès au compte qui gère ce domaine.
+
 1. Vercel → projet → **Settings → Domains** → ajouter `devis.tolerie-remond.com`.
 2. OVH → **Web Cloud → Noms de domaine → tolerie-remond.com → Zone DNS** → ajouter un enregistrement
    **CNAME** : sous-domaine `devis`, cible = la valeur affichée par Vercel (en général `cname.vercel-dns.com.`).
@@ -110,6 +113,20 @@ React. Ni WordPress, ni une application React « pure ».
   changer dans la chaîne de publication.**
 - **B. Les articles arrivent directement dans le dépôt** (un fichier Markdown par article) : plus de WordPress du
   tout, mais l'outil qui rédige les articles doit savoir publier sur GitHub.
+
+**L'outil actuel** (`automatisation-articles-seo`, programme Python lancé à 11 h et 16 h par une tâche Claude) lit
+les mails « Article SEO » / « Nos Réalisations », rédige, puis publie par l'**API REST de WordPress** : titre, texte
+HTML, photos, extrait, catégorie Réalisations, image à la une et méta **Yoast** (titre SEO, méta-description,
+mot-clé). Avec la solution A, il ne change presque pas :
+
+1. WordPress déménage sur `articles.tolerie-remond.com` (même base, mêmes comptes, mêmes mots de passe d'application).
+2. Dans `sites.json`, l'adresse du site « tolerie » devient `https://articles.tolerie-remond.com` (une ligne).
+3. Le nouveau site lit `/wp-json/wp/v2/posts` (avec les méta Yoast exposées par `yoast_head_json`) et génère
+   les pages `tolerie-remond.com/realisations/…`.
+4. Mise à jour du site après publication : soit une reconstruction programmée à 11 h 30 et 16 h 30 (GitHub
+   Actions), soit un appel ajouté à la fin de `seo_pipeline.py publish` (« crochet de déploiement »).
+
+Le site `fabricant-meuble-metal.fr` (ZHED) n'est pas concerné et reste tel quel.
 
 Dans les deux cas, les adresses actuelles des articles sont conservées ou redirigées en 301 pour garder le
 référencement acquis.

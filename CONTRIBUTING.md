@@ -71,5 +71,8 @@ Variables Vercel (Settings → Environment Variables), jamais dans le code :
 | `ANTHROPIC_API_KEY` | Clé de l'API Claude (clé d'espace de travail, `sk-ant-api03-…`) |
 | `ANTHROPIC_WORKSPACE_ID` | Seulement si la clé n'est pas rattachée à un espace de travail |
 | `ASSISTANT_MODEL` | Facultatif, modèle utilisé (par défaut `claude-opus-5-5`) |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Captcha Cloudflare Turnstile de l'assistant IA (désactivé si absentes) |
+
+Hébergement, domaine `devis.`, migration vers les comptes de l'entreprise : `TOLERIE/PLAN-HEBERGEMENT-ET-REFONTE.md`.
 
 En local : `TOLERIE/devis-3d/server/.env` (modèle : `server/.env.example`).

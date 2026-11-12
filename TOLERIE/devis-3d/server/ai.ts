@@ -6,7 +6,8 @@ import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import * as z from 'zod/v4';
 
 export const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
-const MODEL = process.env.ASSISTANT_MODEL || 'claude-opus-5-5';
+const MODEL = process.env.ASSISTANT_MODEL?.trim() || 'claude-opus-5-5';
+const HAIKU = MODEL.includes('haiku');
 // Clé d'organisation non rattachée à un espace de travail : l'API exige alors l'identifiant de l'espace (wrkspc_…).
 const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
 const client = aiEnabled ? new Anthropic(workspace ? { defaultHeaders: { 'anthropic-workspace-id': workspace } } : {}) : null;
@@ -92,9 +93,8 @@ export async function aiTurn(context: string, history: { role: string; text: str
   const res = await client.beta.messages.parse({
     model: MODEL,
     max_tokens: 4000,
-    // Repli automatique sur un autre modèle si celui-ci décline la demande.
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
+    // Repli serveur en cas de refus : Opus, Fable, Sonnet 5.5 seulement (Haiku ne le propose pas).
+    ...(HAIKU ? {} : { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const }),
     output_config: { effort: 'low', format: betaZodOutputFormat(AiTurn) },
     system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
     messages: toMessages(history, context, text),

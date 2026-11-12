@@ -3,7 +3,7 @@ import "@anthropic-ai/sdk/helpers/beta/zod";
 import * as z from "zod/v4";
 // server/ai.ts
 const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
-process.env.ASSISTANT_MODEL;
+(process.env.ASSISTANT_MODEL?.trim() || "claude-opus-5-5").includes("haiku");
 const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
 aiEnabled && new Anthropic(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {});
 z.object({
@@ -94,12 +94,15 @@ z.object({
 		"quantity"
 	])).describe("Informations que ce message a données ou confirmées.")
 });
+/** Clé publique du widget, transmise à la page par /api/health (pas besoin de reconstruire le site). */
+const captchaSiteKey = process.env.TURNSTILE_SECRET_KEY?.trim() ? process.env.TURNSTILE_SITE_KEY?.trim() || void 0 : void 0;
 // server/vercel/health.ts
 function GET() {
 	return Response.json({
 		ok: true,
 		mail: "none",
-		ai: aiEnabled
+		ai: aiEnabled,
+		captcha: captchaSiteKey ?? null
 	});
 }
 export { GET };

@@ -4,6 +4,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/assistant.js": { "maxDuration": 60 }
-  }
+    "api/assistant.js": {
+      "maxDuration": 60
+    }
+  },
+  "regions": [
+    "cdg1"
+  ]
 }

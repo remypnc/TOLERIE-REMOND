@@ -1,9 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import * as z from "zod/v4";
+import { createHmac, timingSafeEqual } from "node:crypto";
 // server/ai.ts
 const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
-const MODEL = process.env.ASSISTANT_MODEL || "claude-opus-5-5";
+const MODEL = process.env.ASSISTANT_MODEL?.trim() || "claude-opus-5-5";
+const HAIKU = MODEL.includes("haiku");
 const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
 const client = aiEnabled ? new Anthropic(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {}) : null;
 /** Réponse attendue : tous les champs sont présents, `null` = inchangé. */
@@ -133,8 +135,10 @@ async function aiTurn(context, history, text) {
 	const res = await client.beta.messages.parse({
 		model: MODEL,
 		max_tokens: 4e3,
-		betas: ["server-side-fallback-2026-07-01"],
-		fallbacks: "default",
+		...HAIKU ? {} : {
+			betas: ["server-side-fallback-2026-07-01"],
+			fallbacks: "default"
+		},
 		output_config: {
 			effort: "low",
 			format: betaZodOutputFormat(AiTurn)
@@ -150,6 +154,51 @@ async function aiTurn(context, history, text) {
 	if (!res.parsed_output) throw new Error("Réponse illisible");
 	return res.parsed_output;
 }
+// server/captcha.ts
+const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
+/** Clé publique du widget, transmise à la page par /api/health (pas besoin de reconstruire le site). */
+const captchaSiteKey = secret ? process.env.TURNSTILE_SITE_KEY?.trim() || void 0 : void 0;
+const captchaEnabled = !!(secret && captchaSiteKey);
+const PASS_MS = 72e5;
+const sign = (exp) => createHmac("sha256", secret).update(`laissez-passer:${exp}`).digest("base64url");
+function validPass(pass) {
+	if (!pass) return false;
+	const [e, sig] = pass.split(".");
+	const exp = Number(e);
+	if (!Number.isFinite(exp) || exp < Date.now() || !sig) return false;
+	const want = Buffer.from(sign(exp));
+	const got = Buffer.from(sig);
+	return want.length === got.length && timingSafeEqual(want, got);
+}
+async function verifyToken(token, ip) {
+	try {
+		return (await (await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+			method: "POST",
+			body: new URLSearchParams({
+				secret,
+				response: token.slice(0, 2048),
+				...ip !== "?" ? { remoteip: ip } : {}
+			})
+		})).json()).success === true;
+	} catch {
+		return false;
+	}
+}
+/**
+* Le demandeur est-il passé par le captcha ? `pass` : nouveau laissez-passer à renvoyer au navigateur.
+* En-têtes lus : `x-captcha-pass` (laissez-passer) ou `x-captcha-token` (jeton Turnstile frais).
+*/
+async function checkHuman(headers, ip) {
+	if (!captchaEnabled) return { ok: true };
+	if (validPass(headers.get("x-captcha-pass"))) return { ok: true };
+	const token = headers.get("x-captcha-token");
+	if (!token || !await verifyToken(token, ip)) return { ok: false };
+	const exp = Date.now() + PASS_MS;
+	return {
+		ok: true,
+		pass: `${exp}.${sign(exp)}`
+	};
+}
 // server/vercel/assistant.ts
 /** Limite par adresse IP, par instance (anti-abus simple). */
 const hits = /* @__PURE__ */ new Map();
@@ -163,7 +212,14 @@ function tooMany(key, max, windowMs) {
 const str = (v, max) => typeof v === "string" && v.trim() ? v.trim().slice(0, max) : void 0;
 async function POST(req) {
 	if (!aiEnabled) return Response.json({ error: "IA non configurée" }, { status: 503 });
-	if (tooMany(req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "?", 40, 6e5)) return Response.json({ error: "Trop de demandes, réessayez dans quelques minutes" }, { status: 429 });
+	const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "?";
+	if (tooMany(ip, 40, 6e5)) return Response.json({ error: "Trop de demandes, réessayez dans quelques minutes" }, { status: 429 });
+	const human = await checkHuman(req.headers, ip);
+	if (!human.ok) return Response.json({
+		error: "Vérification anti-robot requise",
+		captcha: true
+	}, { status: 403 });
+	const passHeader = human.pass ? { "x-captcha-pass": human.pass } : {};
 	let body;
 	try {
 		body = await req.json();
@@ -177,7 +233,7 @@ async function POST(req) {
 		text: str(h.text, 4e3) ?? ""
 	})).filter((h) => h.text) : [];
 	try {
-		return Response.json(await aiTurn(str(body.context, 3e4) ?? "{}", history, text));
+		return Response.json(await aiTurn(str(body.context, 3e4) ?? "{}", history, text), { headers: passHeader });
 	} catch (e) {
 		if (e instanceof AiRefused) return Response.json({ error: "Demande déclinée" }, { status: 422 });
 		console.error("[ia] échec", e);

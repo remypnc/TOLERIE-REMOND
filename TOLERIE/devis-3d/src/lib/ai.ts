@@ -4,11 +4,18 @@ import type { AssistantTurn, ChatMessage, CustomPanel, MissingField, PartSpec, P
 import { FINISHES, MATERIALS } from './catalog';
 import { missingFields, simplePatch } from './assistant';
 import { newProduct, panelsNamed, productModel, PRODUCTS } from './products';
+import { captchaHeaders, rememberPass, setCaptchaSiteKey } from './captcha';
 
 let available: Promise<boolean> | null = null;
 /** L'IA est-elle branchée côté serveur (clé API présente) ? Vérifié une fois. */
 export function aiAvailable(): Promise<boolean> {
-  available ??= fetch('/api/health').then((r) => (r.ok ? r.json() : {})).then((h: { ai?: boolean }) => !!h.ai).catch(() => false);
+  available ??= fetch('/api/health')
+    .then((r) => (r.ok ? r.json() : {}))
+    .then((h: { ai?: boolean; captcha?: string | null }) => {
+      setCaptchaSiteKey(h.captcha);
+      return !!h.ai;
+    })
+    .catch(() => false);
   return available;
 }
 
@@ -110,12 +117,17 @@ function toTurn(spec: PartSpec, out: AiOut, answeredBefore: MissingField[]): { t
 
 /** Un tour avec l'IA ; null si elle n'est pas disponible ou a échoué (la page bascule alors sur les règles). */
 export async function askAi(spec: PartSpec, history: ChatMessage[], answered: MissingField[], text: string) {
+  const body = JSON.stringify({ text, context: context(spec, answered), history: history.slice(-12).map((m) => ({ role: m.role, text: m.text })) });
+  const call = async (fresh: boolean) =>
+    fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await captchaHeaders(fresh)) }, body });
   try {
-    const r = await fetch('/api/assistant', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, context: context(spec, answered), history: history.slice(-12).map((m) => ({ role: m.role, text: m.text })) }),
-    });
+    let r = await call(false);
+    // Laissez-passer expiré ou refusé : un nouveau défi, une seule fois.
+    if (r.status === 403) {
+      rememberPass(null);
+      r = await call(true);
+    }
+    if (r.headers.get('x-captcha-pass')) rememberPass(r.headers.get('x-captcha-pass'));
     if (!r.ok) return null;
     return toTurn(spec, (await r.json()) as AiOut, answered);
   } catch {
